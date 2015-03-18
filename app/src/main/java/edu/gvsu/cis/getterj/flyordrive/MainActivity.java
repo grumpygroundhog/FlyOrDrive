@@ -31,7 +31,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-
+//this is a test -Charles
 public class MainActivity extends Activity {
     EditText startLoc;
     EditText endLoc;
