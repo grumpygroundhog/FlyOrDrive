@@ -9,30 +9,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Scanner;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-//this is a test -Charles
-//this is a test -Josh
 public class MainActivity extends Activity {
     EditText startLoc;
     EditText endLoc;
@@ -42,18 +26,20 @@ public class MainActivity extends Activity {
     Button goButton;
 
     String apiKey = "AIzaSyCjFdDt_AKA3uxkPJP_OSnrQrp4e9QbVyM";
-    String destination = "Miami";
-    String origin = "Lansing";
-    String make = "GMC";
-    String model = "Sierra";
-    String year = "1998";
-    String url = "http://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination;
+    /*what is the point of this section??? */
+//    String destination = "Miami";
+//    String origin = "Lansing";
+//    String make = "GMC";
+//    String model = "Sierra";
+//    String year = "1998";
+    String googleMapUrl = "http://maps.googleapis.com/maps/api/directions/json?origin=";
 
-    public void setMilesToTravel(String milesToTravel) {
-        this.milesToTravel = milesToTravel;
-    }
+    String milesToTravel = "";
+    /* no need for a method. Just set the string in the asyncTask and cleared it in pre-execute -charles*/
+//    public void setMilesToTravel(String milesToTravel) {
+//        this.milesToTravel = milesToTravel;
+//    }
 
-    String milesToTravel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,10 +58,17 @@ public class MainActivity extends Activity {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               String userStartLoc = startLoc.getText().toString();
-               String userEndLoc = endLoc.getText().toString();
+                /*
+                shouldn't we put an intent in here that launches all the entered
+                info into the next activity?? -charles
+                 */
+
+                //took out unnecessary variables for memory and efficiency -charles
+               String w = googleMapUrl + startLoc.getText().toString() + "&destination="
+                       + endLoc.getText().toString();
+                //JSON now takes in the url as a param to shorten the async task & be more efficient -charles
                 JsonRequest getDirections = new JsonRequest();
-                getDirections.execute();
+                getDirections.execute(w);
             }
         });
     }
@@ -103,64 +96,75 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class JsonRequest extends AsyncTask<Void, Void, String> {
+    private class JsonRequest extends AsyncTask<String, Void, String> {
+
         @Override
-        protected String doInBackground(Void... params) {
-            String jsonString = null;
-            HttpClient client = new DefaultHttpClient();
-            String localUrl = url;
-            HttpGet hget = new HttpGet(localUrl);
-            HttpResponse response = null;
+        protected void onPreExecute() {
+            milesToTravel = "";
+        }
+        @Override
+        protected String doInBackground(String... strings) {
+//            String jsonString = null;
+//            HttpClient client = new DefaultHttpClient();
+//            String localUrl = url;
+//            HttpGet hget = new HttpGet(localUrl);
+//            HttpResponse response = null;
+//            try {
+//                response = client.execute(hget);
+//
+//                HttpEntity entity = response.getEntity();
+//                String jsonResult = EntityUtils.toString(entity);//above gets response from Google Maps to get distance.//
+//
+//               /* String uri =
+//                        "http://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=" + year + "&make=" + make + "&model=" + model;
+//
+//                URL url = new URL(uri);
+//                HttpURLConnection connection =
+//                        (HttpURLConnection) url.openConnection();
+//                connection.setRequestMethod("GET");
+//                connection.setRequestProperty("Accept", "application/xml");
+//
+//                InputStream xml = connection.getInputStream();
+//
+//                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+//                DocumentBuilder db = dbf.newDocumentBuilder();
+//                Document doc = db.parse(xml);*/
+//
+//                return jsonResult;
+
+            /*I shortened up this code a bit using the URL class in java for efficiency and shorter code -charles*/
+            String json = "";
             try {
-                response = client.execute(hget);
-
-                HttpEntity entity = response.getEntity();
-                String jsonResult = EntityUtils.toString(entity);//above gets response from Google Maps to get distance.//
-
-               /* String uri =
-                        "http://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=" + year + "&make=" + make + "&model=" + model;
-
-                URL url = new URL(uri);
-                HttpURLConnection connection =
-                        (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Accept", "application/xml");
-
-                InputStream xml = connection.getInputStream();
-
-                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-                DocumentBuilder db = dbf.newDocumentBuilder();
-                Document doc = db.parse(xml);*/
-
-                return jsonResult;
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
+                URL theURL = new URL(strings[0]);
+                Scanner scan = new Scanner(theURL.openStream());
+                while (scan.hasNextLine()) {
+                    json += scan.nextLine();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return null;
+            return (json);
         }
 
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
 
-            JSONObject jsonObject = null;
-            JSONArray routes = new JSONArray();
-            JSONObject holder1 = new JSONObject();
-            JSONArray legs = new JSONArray();
-            JSONObject holder2 = new JSONObject();
-            JSONObject distance = new JSONObject();
+            //removed unnecessary initializers -charles
+//            JSONObject topJsonObject;
+//            JSONArray routes = new JSONArray();
+//            JSONObject holder1 = new JSONObject();
+//            JSONArray legs = new JSONArray();
+//            JSONObject holder2 = new JSONObject();
+//            JSONObject distance = new JSONObject();
             try {
-                jsonObject = new JSONObject(s);
-                routes = jsonObject.getJSONArray("routes");
-                holder1 = routes.getJSONObject(0);
-                legs = holder1.getJSONArray("legs");
-                holder2 = legs.getJSONObject(0);
-                distance = holder2.getJSONObject("distance");
-                String tempResult = distance.getString("text");
-                setMilesToTravel(tempResult);
-
+                JSONObject topJsonObject = new JSONObject(s);
+                JSONArray routes = topJsonObject.getJSONArray("routes");
+                JSONObject holder1 = routes.getJSONObject(0);
+                JSONArray legs = holder1.getJSONArray("legs");
+                JSONObject holder2 = legs.getJSONObject(0);
+                JSONObject distance = holder2.getJSONObject("distance");
+                milesToTravel = distance.getString("text");
             } catch (JSONException e) {
                 e.printStackTrace();
             }

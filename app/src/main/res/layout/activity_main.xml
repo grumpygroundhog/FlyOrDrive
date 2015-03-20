@@ -13,7 +13,7 @@
         android:id="@+id/startLoc"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:hint="Start Location" />
+        android:hint="@string/start_location" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -23,13 +23,13 @@
         android:id="@+id/endLoc"
         android:layout_below="@+id/startLoc"
         android:layout_alignStart="@+id/startLoc"
-        android:hint="End Location" />
+        android:hint="@string/end_location" />
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/carMake"
-        android:hint="Make of Car"
+        android:hint="@string/car_make"
         android:layout_below="@+id/endLoc"
         android:layout_alignEnd="@+id/endLoc"
         android:layout_alignStart="@+id/endLoc" />
@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/carModel"
         android:layout_below="@+id/carMake"
-        android:hint="Model of Car"
+        android:hint="@string/car_model"
         android:layout_alignEnd="@+id/carMake"
         android:layout_alignStart="@+id/carMake" />
 
@@ -49,13 +49,13 @@
         android:id="@+id/carYear"
         android:layout_below="@+id/carModel"
         android:layout_alignStart="@+id/carModel"
-        android:hint="Year of Car"
+        android:hint="@string/car_year"
         android:layout_alignEnd="@+id/carModel" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Go!"
+        android:text="@string/go_button"
         android:id="@+id/goButton"
         android:layout_below="@+id/carYear"
         android:layout_alignStart="@+id/carYear"
