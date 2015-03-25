@@ -36,6 +36,7 @@ public class MainActivity extends Activity {
     Button goButton;
     Spinner yearSpinner;
     Spinner makeSpinner;
+    Spinner modelSpinner;
     private static DocumentBuilderFactory dbFactory;
     ArrayList<String> carModelArrayList;
     ArrayList<String> carMakeArrayList;
@@ -71,6 +72,7 @@ public class MainActivity extends Activity {
         goButton = (Button) findViewById(R.id.goButton);
         yearSpinner = (Spinner) findViewById(R.id.spinner);
         makeSpinner = (Spinner) findViewById(R.id.makeSpinner);
+        modelSpinner = (Spinner) findViewById(R.id.modelSpinner);
         dbFactory = DocumentBuilderFactory.newInstance();
         carModelArrayList = new ArrayList<String>();
         carYearArrayList = new ArrayList<String>();
@@ -98,14 +100,34 @@ public class MainActivity extends Activity {
 
             }
         });
-        yearSpinner.setOnTouchListener(new View.OnTouchListener() {
+        yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/make?year=" + yearSpinner.getSelectedItem().toString();
 
+                carMakeArrayList.clear();
                 JsonRequest getMakes = new JsonRequest();
                 getMakes.execute(url);
-                return false;
+
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        makeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=" + yearSpinner.getSelectedItem().toString() + "&make=" + makeSpinner.getSelectedItem().toString();
+
+                carModelArrayList.clear();
+                JsonRequest getModels = new JsonRequest();
+                getModels.execute(url);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
     }
@@ -148,7 +170,8 @@ public class MainActivity extends Activity {
             try {
                 DocumentBuilder docBuilder;
                 docBuilder = dbFactory.newDocumentBuilder();
-                URL u = new URL(strings[0]);
+
+                URL u = new URL(strings[0].replaceAll(" ","%20"));
                 uconn = (HttpURLConnection) u.openConnection();
                 status = uconn.getResponseCode();
                 Document doc = docBuilder.parse(uconn.getInputStream());
@@ -210,6 +233,13 @@ public class MainActivity extends Activity {
                         ArrayAdapter<String> adapter;
                         adapter = new ArrayAdapter<String>(getApplication(),android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
                         yearSpinner.setAdapter(adapter);
+                    }
+                    if(url.contains("model?"))
+                    {
+                        carModelArrayList.add(temp.getTextContent());
+                        ArrayAdapter<String> adapter;
+                        adapter = new ArrayAdapter<String>(getApplication(),android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
+                        modelSpinner.setAdapter(adapter);
                     }
 
 
