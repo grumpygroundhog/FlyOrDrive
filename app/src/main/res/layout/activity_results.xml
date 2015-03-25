@@ -1,0 +1,102 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="edu.gvsu.cis.getterj.flyordrive.ResultsActivity">
+
+    <TextView android:text="Results"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:textSize="50dp"
+        android:id="@+id/resultsLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fly"
+        android:id="@+id/flyLabel"
+        android:layout_below="@+id/resultsLabel"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"
+        android:textSize="30dp"
+        android:layout_marginLeft="50dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Drive"
+        android:id="@+id/driveLabel"
+        android:layout_below="@+id/resultsLabel"
+        android:layout_alignParentEnd="true"
+        android:textSize="30dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="50dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cost"
+        android:id="@+id/fCost"
+        android:layout_below="@+id/flyLabel"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="37dp"
+        android:textSize="20dp"
+        android:layout_marginLeft="50dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Time"
+        android:id="@+id/fTime"
+        android:layout_below="@+id/fCost"
+        android:layout_alignParentStart="true"
+        android:textSize="20dp"
+        android:layout_marginTop="35dp"
+        android:layout_marginLeft="50dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Miles"
+        android:id="@+id/fMiles"
+        android:layout_below="@+id/fTime"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="45dp"
+        android:textSize="20dp"
+        android:layout_marginLeft="50dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cost"
+        android:id="@+id/dCost"
+        android:textSize="20dp"
+        android:layout_alignTop="@+id/fCost"
+        android:layout_alignStart="@+id/driveLabel"
+        android:layout_marginLeft="15dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Time"
+        android:id="@+id/dTime"
+        android:textSize="20dp"
+        android:layout_above="@+id/fMiles"
+        android:layout_alignStart="@+id/dCost" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Miles"
+        android:id="@+id/dMiles"
+        android:textSize="20dp"
+        android:layout_alignTop="@+id/fMiles"
+        android:layout_alignStart="@+id/dTime" />
+
+</RelativeLayout>

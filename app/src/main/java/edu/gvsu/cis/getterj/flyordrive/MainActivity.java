@@ -1,6 +1,7 @@
 package edu.gvsu.cis.getterj.flyordrive;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -92,11 +93,15 @@ public class MainActivity extends Activity {
                  */
 
                 //took out unnecessary variables for memory and efficiency -charles
-               String w = googleMapUrl + startLoc.getText().toString() + "&destination="
+              String w = googleMapUrl + startLoc.getText().toString() + "&destination="
                        + endLoc.getText().toString();
                 //JSON now takes in the url as a param to shorten the async task & be more efficient -charles
                 JsonRequest getDirections = new JsonRequest();
                 getDirections.execute(w);
+
+                //launches second activity
+                Intent launchme = new Intent (MainActivity.this, ResultsActivity.class);
+                startActivity (launchme);
 
             }
         });
