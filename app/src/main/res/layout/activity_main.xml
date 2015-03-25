@@ -61,4 +61,21 @@
         android:layout_alignStart="@+id/carYear"
         android:layout_alignEnd="@+id/carYear"
         android:background="#ff0ee324" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner"
+        android:layout_below="@+id/goButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="84dp"
+        android:layoutMode="opticalBounds" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/makeSpinner"
+        android:layoutMode="opticalBounds"
+        android:layout_below="@+id/spinner"
+        android:layout_alignStart="@+id/goButton" />
 </RelativeLayout>

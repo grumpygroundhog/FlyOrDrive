@@ -5,17 +5,27 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Scanner;
+import java.util.ArrayList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class MainActivity extends Activity {
     EditText startLoc;
@@ -24,6 +34,14 @@ public class MainActivity extends Activity {
     EditText carModel;
     EditText carYear;
     Button goButton;
+    Spinner yearSpinner;
+    Spinner makeSpinner;
+    private static DocumentBuilderFactory dbFactory;
+    ArrayList<String> carModelArrayList;
+    ArrayList<String> carMakeArrayList;
+    ArrayList<String> carYearArrayList;
+    String url;
+
 
     String apiKey = "AIzaSyCjFdDt_AKA3uxkPJP_OSnrQrp4e9QbVyM";
     /*what is the point of this section??? */
@@ -51,7 +69,15 @@ public class MainActivity extends Activity {
         carModel = (EditText) findViewById(R.id.carModel);
         carYear = (EditText) findViewById(R.id.carYear);
         goButton = (Button) findViewById(R.id.goButton);
-
+        yearSpinner = (Spinner) findViewById(R.id.spinner);
+        makeSpinner = (Spinner) findViewById(R.id.makeSpinner);
+        dbFactory = DocumentBuilderFactory.newInstance();
+        carModelArrayList = new ArrayList<String>();
+        carYearArrayList = new ArrayList<String>();
+        carMakeArrayList = new ArrayList<String>();
+        url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/year";
+        JsonRequest getYears = new JsonRequest();
+        getYears.execute("http://www.fueleconomy.gov/ws/rest/vehicle/menu/year");
 
 
 
@@ -69,6 +95,17 @@ public class MainActivity extends Activity {
                 //JSON now takes in the url as a param to shorten the async task & be more efficient -charles
                 JsonRequest getDirections = new JsonRequest();
                 getDirections.execute(w);
+
+            }
+        });
+        yearSpinner.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/make?year=" + yearSpinner.getSelectedItem().toString();
+
+                JsonRequest getMakes = new JsonRequest();
+                getMakes.execute(url);
+                return false;
             }
         });
     }
@@ -96,44 +133,39 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class JsonRequest extends AsyncTask<String, Void, String> {
+    private class JsonRequest extends AsyncTask<String, Void, Document> {
 
         @Override
         protected void onPreExecute() {
             milesToTravel = "";
         }
         @Override
-        protected String doInBackground(String... strings) {
-//            String jsonString = null;
-//            HttpClient client = new DefaultHttpClient();
-//            String localUrl = url;
-//            HttpGet hget = new HttpGet(localUrl);
-//            HttpResponse response = null;
-//            try {
-//                response = client.execute(hget);
-//
-//                HttpEntity entity = response.getEntity();
-//                String jsonResult = EntityUtils.toString(entity);//above gets response from Google Maps to get distance.//
-//
-//               /* String uri =
-//                        "http://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=" + year + "&make=" + make + "&model=" + model;
-//
-//                URL url = new URL(uri);
-//                HttpURLConnection connection =
-//                        (HttpURLConnection) url.openConnection();
-//                connection.setRequestMethod("GET");
-//                connection.setRequestProperty("Accept", "application/xml");
-//
-//                InputStream xml = connection.getInputStream();
-//
-//                DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-//                DocumentBuilder db = dbf.newDocumentBuilder();
-//                Document doc = db.parse(xml);*/
-//
-//                return jsonResult;
+        protected Document doInBackground(String... strings) {
+            String uri = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=" + carYear.getText().toString()+ "&make=" + carMake.getText().toString();
+
+            int status;
+            HttpURLConnection uconn;
+            try {
+                DocumentBuilder docBuilder;
+                docBuilder = dbFactory.newDocumentBuilder();
+                URL u = new URL(strings[0]);
+                uconn = (HttpURLConnection) u.openConnection();
+                status = uconn.getResponseCode();
+                Document doc = docBuilder.parse(uconn.getInputStream());
+                //Log.d("HANS", "XML parsed: " + doc.getNodeName());
+                return doc;
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            } catch (SAXException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+            //ABOVE GETS XML DATA
 
             /*I shortened up this code a bit using the URL class in java for efficiency and shorter code -charles*/
-            String json = "";
+            /*String json = "";
             try {
                 URL theURL = new URL(strings[0]);
                 Scanner scan = new Scanner(theURL.openStream());
@@ -143,12 +175,52 @@ public class MainActivity extends Activity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return (json);
+            return (json);*/
         }
 
-        @Override
-        protected void onPostExecute(String s) {
+            @Override
+        protected void onPostExecute(Document s) {
             super.onPostExecute(s);
+
+           /* NodeList test = s.getElementsByTagName("menuItem");
+                for(int k = 0; k < test.getLength(); k++)
+                {
+                   NodeList level2 = test.item(k).getChildNodes();
+                   Node temp = level2.item(0);
+                   carModelArrayList.add(temp.getTextContent());
+
+                }*/
+
+                NodeList xmlElements = s.getElementsByTagName("menuItem");
+                for(int k = 0; k < xmlElements.getLength(); k++)
+                {
+                    NodeList level2 = xmlElements.item(k).getChildNodes();
+                    Node temp = level2.item(0);
+                    if(url.contains("make?"))
+                    {
+
+                        carMakeArrayList.add(temp.getTextContent());
+                        ArrayAdapter<String> adapter;
+                        adapter = new ArrayAdapter<String>(getApplication(),android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
+                        makeSpinner.setAdapter(adapter);
+                    }
+                    if(url.contains("/year"))
+                    {
+                        carYearArrayList.add(temp.getTextContent());
+                        ArrayAdapter<String> adapter;
+                        adapter = new ArrayAdapter<String>(getApplication(),android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
+                        yearSpinner.setAdapter(adapter);
+                    }
+
+
+                }
+
+
+
+                //ABOVE PARSES XML
+
+
+
 
             //removed unnecessary initializers -charles
 //            JSONObject topJsonObject;
@@ -157,7 +229,7 @@ public class MainActivity extends Activity {
 //            JSONArray legs = new JSONArray();
 //            JSONObject holder2 = new JSONObject();
 //            JSONObject distance = new JSONObject();
-            try {
+            /*try {
                 JSONObject topJsonObject = new JSONObject(s);
                 JSONArray routes = topJsonObject.getJSONArray("routes");
                 JSONObject holder1 = routes.getJSONObject(0);
@@ -167,7 +239,7 @@ public class MainActivity extends Activity {
                 milesToTravel = distance.getString("text");
             } catch (JSONException e) {
                 e.printStackTrace();
-            }
+            }*/
 
 
         }
