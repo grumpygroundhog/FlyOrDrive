@@ -26,54 +26,27 @@
         android:layout_below="@+id/startLoc"
         android:layout_centerHorizontal="true" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/carMake"
-        android:hint="@string/car_make"
-        android:layout_below="@+id/endLoc"
-        android:layout_alignEnd="@+id/endLoc"
-        android:layout_alignStart="@+id/endLoc"
-        android:layout_centerHorizontal="true" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/carModel"
-        android:layout_below="@+id/carMake"
-        android:hint="@string/car_model"
-        android:layout_alignEnd="@+id/carMake"
-        android:layout_alignStart="@+id/carMake"
-        android:layout_centerHorizontal="true" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/carYear"
-        android:layout_below="@+id/carModel"
-        android:layout_alignStart="@+id/carModel"
-        android:hint="@string/car_year"
-        android:layout_alignEnd="@+id/carModel"
-        android:layout_centerHorizontal="true" />
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/go_button"
         android:id="@+id/goButton"
-        android:layout_below="@+id/carYear"
-        android:layout_alignStart="@+id/carYear"
-        android:layout_alignEnd="@+id/carYear"
         android:background="#ff0ee324"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_alignStart="@+id/endLoc"
+        android:layout_alignEnd="@+id/endLoc"
+        android:layout_below="@+id/carOptionsSpinner" />
 
     <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/spinner"
         android:layoutMode="opticalBounds"
-        android:layout_below="@+id/goButton"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/endLoc"
+        android:spinnerMode="dialog"
+        android:layout_alignStart="@+id/endLoc"
+        android:layout_alignEnd="@+id/endLoc"
+        android:prompt="@string/select_year"/>
 
     <Spinner
         android:layout_width="wrap_content"
@@ -81,7 +54,10 @@
         android:id="@+id/makeSpinner"
         android:layoutMode="opticalBounds"
         android:layout_below="@+id/spinner"
-        android:layout_centerHorizontal="true" />
+        android:spinnerMode="dialog"
+        android:layout_alignStart="@+id/spinner"
+        android:layout_alignEnd="@+id/spinner"
+        android:prompt="@string/select_make"/>
 
     <Spinner
         android:layout_width="wrap_content"
@@ -89,7 +65,21 @@
         android:id="@+id/modelSpinner"
         android:layoutMode="opticalBounds"
         android:layout_below="@+id/makeSpinner"
-        android:layout_centerHorizontal="true" />
+        android:spinnerMode="dialog"
+        android:layout_alignStart="@+id/makeSpinner"
+        android:layout_alignEnd="@+id/makeSpinner"
+        android:prompt="@string/select_model"/>
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/carOptionsSpinner"
+        android:layoutMode="opticalBounds"
+        android:layout_below="@+id/modelSpinner"
+        android:spinnerMode="dialog"
+        android:layout_alignStart="@+id/modelSpinner"
+        android:layout_alignEnd="@+id/modelSpinner"
+        android:prompt="@string/select_car"/>
 
     <RadioButton
         android:layout_width="wrap_content"
@@ -99,12 +89,4 @@
         android:layout_alignBottom="@+id/startLoc"
         android:layout_toEndOf="@+id/startLoc" />
 
-
-    <Spinner
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/carOptionsSpinner"
-        android:layoutMode="opticalBounds"
-        android:layout_below="@+id/modelSpinner"
-        android:layout_centerHorizontal="true" />
 </RelativeLayout>

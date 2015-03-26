@@ -33,9 +33,9 @@ import javax.xml.parsers.ParserConfigurationException;
 public class MainActivity extends Activity {
     EditText startLoc;
     EditText endLoc;
-    EditText carMake;
-    EditText carModel;
-    EditText carYear;
+//    EditText carMake;
+//    EditText carModel;
+//    EditText carYear;
     Button goButton;
     Spinner yearSpinner;
     Spinner makeSpinner;
@@ -59,9 +59,9 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         startLoc = (EditText) findViewById(R.id.startLoc);
         endLoc = (EditText) findViewById(R.id.endLoc);
-        carMake = (EditText) findViewById(R.id.carMake);
-        carModel = (EditText) findViewById(R.id.carModel);
-        carYear = (EditText) findViewById(R.id.carYear);
+//        carMake = (EditText) findViewById(R.id.carMake);
+//        carModel = (EditText) findViewById(R.id.carModel);
+//        carYear = (EditText) findViewById(R.id.carYear);
         goButton = (Button) findViewById(R.id.goButton);
         currentLoc = (RadioButton) findViewById(R.id.currLocRadioButton);
         yearSpinner = (Spinner) findViewById(R.id.spinner);
@@ -282,21 +282,24 @@ public class MainActivity extends Activity {
 
                         carMakeArrayList.add(temp.getTextContent());
                         ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
+                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
                         makeSpinner.setAdapter(adapter);
                     }
                     if(url.contains("/year"))
                     {
                         carYearArrayList.add(temp.getTextContent());
                         ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
+                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
                         yearSpinner.setAdapter(adapter);
                     }
                     if(url.contains("model?"))
                     {
                         carModelArrayList.add(temp.getTextContent());
                         ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
+                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
                         modelSpinner.setAdapter(adapter);
                     }
                     if(url.contains("options?"))
@@ -306,7 +309,8 @@ public class MainActivity extends Activity {
                         carIdArrayList.add(id.getTextContent());
 
                         ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
+                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
                         optionsSpinner.setAdapter(adapter);
                     }
 
