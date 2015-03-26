@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -38,10 +39,13 @@ public class MainActivity extends Activity {
     Spinner yearSpinner;
     Spinner makeSpinner;
     Spinner modelSpinner;
+    Spinner optionsSpinner;
     private static DocumentBuilderFactory dbFactory;
     ArrayList<String> carModelArrayList;
     ArrayList<String> carMakeArrayList;
     ArrayList<String> carYearArrayList;
+    ArrayList<String> carOptionsArrayList;
+    ArrayList<String> carIdArrayList;
     String url;
 
 
@@ -74,10 +78,14 @@ public class MainActivity extends Activity {
         yearSpinner = (Spinner) findViewById(R.id.spinner);
         makeSpinner = (Spinner) findViewById(R.id.makeSpinner);
         modelSpinner = (Spinner) findViewById(R.id.modelSpinner);
+        optionsSpinner = (Spinner) findViewById(R.id.carOptionsSpinner);
         dbFactory = DocumentBuilderFactory.newInstance();
         carModelArrayList = new ArrayList<String>();
         carYearArrayList = new ArrayList<String>();
         carMakeArrayList = new ArrayList<String>();
+        carOptionsArrayList = new ArrayList<String>();
+        carIdArrayList = new ArrayList<String>();
+        String carId;
         url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/year";
         JsonRequest getYears = new JsonRequest();
         getYears.execute("http://www.fueleconomy.gov/ws/rest/vehicle/menu/year");
@@ -135,6 +143,32 @@ public class MainActivity extends Activity {
 
             }
         });
+        modelSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=" + yearSpinner.getSelectedItem().toString() + "&make=" + makeSpinner.getSelectedItem().toString() + "&model=" + modelSpinner.getSelectedItem().toString();
+                carOptionsArrayList.clear();
+                carIdArrayList.clear();
+                JsonRequest getOptions = new JsonRequest();
+                getOptions.execute(url);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        optionsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                url = "http://www.fueleconomy.gov/ws/rest/vehicle/" + carIdArrayList.get(optionsSpinner.getSelectedItemPosition());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
 
@@ -168,9 +202,21 @@ public class MainActivity extends Activity {
         }
         @Override
         protected Document doInBackground(String... strings) {
-            String uri = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=" + carYear.getText().toString()+ "&make=" + carMake.getText().toString();
-
-            int status;
+            if(strings[0].contains("google"))
+            {
+                 /*I shortened up this code a bit using the URL class in java for efficiency and shorter code -charles*/
+            /*String json = "";
+                try {
+                    URL theURL = new URL(strings[0]);
+                    Scanner scan = new Scanner(theURL.openStream());
+                    while (scan.hasNextLine()) {
+                        json += scan.nextLine();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return (json);*/
+            }
             HttpURLConnection uconn;
             try {
                 DocumentBuilder docBuilder;
@@ -178,7 +224,6 @@ public class MainActivity extends Activity {
 
                 URL u = new URL(strings[0].replaceAll(" ","%20"));
                 uconn = (HttpURLConnection) u.openConnection();
-                status = uconn.getResponseCode();
                 Document doc = docBuilder.parse(uconn.getInputStream());
                 //Log.d("HANS", "XML parsed: " + doc.getNodeName());
                 return doc;
@@ -224,6 +269,7 @@ public class MainActivity extends Activity {
                 {
                     NodeList level2 = xmlElements.item(k).getChildNodes();
                     Node temp = level2.item(0);
+                    Node id = level2.item(1);
                     if(url.contains("make?"))
                     {
 
@@ -245,6 +291,16 @@ public class MainActivity extends Activity {
                         ArrayAdapter<String> adapter;
                         adapter = new ArrayAdapter<String>(getApplication(),android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
                         modelSpinner.setAdapter(adapter);
+                    }
+                    if(url.contains("options?"))
+                    {
+                        carOptionsArrayList.add(temp.getTextContent());
+
+                        carIdArrayList.add(id.getTextContent());
+
+                        ArrayAdapter<String> adapter;
+                        adapter = new ArrayAdapter<String>(getApplication(),android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
+                        optionsSpinner.setAdapter(adapter);
                     }
 
 
