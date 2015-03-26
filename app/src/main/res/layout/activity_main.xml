@@ -7,14 +7,14 @@
     android:id="@+id/layout">
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="185dp"
         android:layout_height="wrap_content"
         android:inputType="textPostalAddress"
         android:ems="10"
         android:id="@+id/startLoc"
+        android:hint="@string/start_location"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:hint="@string/start_location" />
+        android:layout_alignStart="@+id/endLoc" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -22,9 +22,9 @@
         android:inputType="textPostalAddress"
         android:ems="10"
         android:id="@+id/endLoc"
+        android:hint="@string/end_location"
         android:layout_below="@+id/startLoc"
-        android:layout_alignStart="@+id/startLoc"
-        android:hint="@string/end_location" />
+        android:layout_centerHorizontal="true" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -33,7 +33,8 @@
         android:hint="@string/car_make"
         android:layout_below="@+id/endLoc"
         android:layout_alignEnd="@+id/endLoc"
-        android:layout_alignStart="@+id/endLoc" />
+        android:layout_alignStart="@+id/endLoc"
+        android:layout_centerHorizontal="true" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -42,7 +43,8 @@
         android:layout_below="@+id/carMake"
         android:hint="@string/car_model"
         android:layout_alignEnd="@+id/carMake"
-        android:layout_alignStart="@+id/carMake" />
+        android:layout_alignStart="@+id/carMake"
+        android:layout_centerHorizontal="true" />
 
     <EditText
         android:layout_width="wrap_content"
@@ -51,7 +53,8 @@
         android:layout_below="@+id/carModel"
         android:layout_alignStart="@+id/carModel"
         android:hint="@string/car_year"
-        android:layout_alignEnd="@+id/carModel" />
+        android:layout_alignEnd="@+id/carModel"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -61,7 +64,8 @@
         android:layout_below="@+id/carYear"
         android:layout_alignStart="@+id/carYear"
         android:layout_alignEnd="@+id/carYear"
-        android:background="#ff0ee324" />
+        android:background="#ff0ee324"
+        android:layout_centerHorizontal="true" />
 
     <Spinner
         android:layout_width="wrap_content"
@@ -86,4 +90,13 @@
         android:layoutMode="opticalBounds"
         android:layout_below="@+id/makeSpinner"
         android:layout_centerHorizontal="true" />
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/currLocRadioButton"
+        android:onClick="onRadioButtonClicked"
+        android:layout_alignBottom="@+id/startLoc"
+        android:layout_toEndOf="@+id/startLoc" />
+
 </RelativeLayout>

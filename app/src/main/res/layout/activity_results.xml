@@ -21,55 +21,49 @@
         android:layout_height="wrap_content"
         android:text="Fly"
         android:id="@+id/flyLabel"
-        android:layout_below="@+id/resultsLabel"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp"
         android:textSize="30dp"
-        android:layout_marginLeft="50dp"/>
+        android:layout_below="@+id/resultsLabel"
+        android:layout_toStartOf="@+id/resultsLabel" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Drive"
         android:id="@+id/driveLabel"
-        android:layout_below="@+id/resultsLabel"
-        android:layout_alignParentEnd="true"
         android:textSize="30dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="50dp"/>
+        android:layout_above="@+id/dCost"
+        android:layout_toEndOf="@+id/resultsLabel" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Cost"
         android:id="@+id/fCost"
-        android:layout_below="@+id/flyLabel"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="37dp"
         android:textSize="20dp"
-        android:layout_marginLeft="50dp"/>
+        android:layout_below="@+id/flyLabel"
+        android:layout_toStartOf="@+id/resultsLabel"
+        android:layout_alignStart="@+id/flyLabel"
+        android:layout_marginBottom="10dp"
+        android:layout_alignEnd="@+id/fMiles" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Time"
         android:id="@+id/fTime"
-        android:layout_below="@+id/fCost"
-        android:layout_alignParentStart="true"
         android:textSize="20dp"
-        android:layout_marginTop="35dp"
-        android:layout_marginLeft="50dp"/>
+        android:layout_below="@+id/fCost"
+        android:layout_alignLeft="@+id/fCost"
+        android:layout_marginBottom="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Miles"
         android:id="@+id/fMiles"
-        android:layout_below="@+id/fTime"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="45dp"
         android:textSize="20dp"
-        android:layout_marginLeft="50dp"/>
+        android:layout_below="@+id/fTime"
+        android:layout_alignStart="@+id/flyLabel" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -78,8 +72,7 @@
         android:id="@+id/dCost"
         android:textSize="20dp"
         android:layout_alignTop="@+id/fCost"
-        android:layout_alignStart="@+id/driveLabel"
-        android:layout_marginLeft="15dp"/>
+        android:layout_alignStart="@+id/driveLabel" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -88,7 +81,8 @@
         android:id="@+id/dTime"
         android:textSize="20dp"
         android:layout_above="@+id/fMiles"
-        android:layout_alignStart="@+id/dCost" />
+        android:layout_alignStart="@+id/dCost"
+        android:layout_marginBottom="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -96,7 +90,17 @@
         android:text="Miles"
         android:id="@+id/dMiles"
         android:textSize="20dp"
-        android:layout_alignTop="@+id/fMiles"
-        android:layout_alignStart="@+id/dTime" />
+        android:layout_alignStart="@+id/dTime"
+        android:layout_below="@+id/dTime" />
 
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/map"
+        tools:context=".MapsActivity"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/fMiles" />
 </RelativeLayout>

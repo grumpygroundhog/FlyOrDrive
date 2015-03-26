@@ -11,5 +11,6 @@
     <string name="car_year">Year of Car</string>
     <string name="go_button">Go!</string>
     <string name="title_activity_results">Results</string>
+    <string name="title_activity_maps">Map</string>
 
 </resources>

@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 
 import org.w3c.dom.Document;
@@ -38,6 +39,7 @@ public class MainActivity extends Activity {
     Spinner yearSpinner;
     Spinner makeSpinner;
     Spinner modelSpinner;
+    RadioButton currentLoc;
     private static DocumentBuilderFactory dbFactory;
     ArrayList<String> carModelArrayList;
     ArrayList<String> carMakeArrayList;
@@ -71,6 +73,7 @@ public class MainActivity extends Activity {
         carModel = (EditText) findViewById(R.id.carModel);
         carYear = (EditText) findViewById(R.id.carYear);
         goButton = (Button) findViewById(R.id.goButton);
+        currentLoc = (RadioButton) findViewById(R.id.currLocRadioButton);
         yearSpinner = (Spinner) findViewById(R.id.spinner);
         makeSpinner = (Spinner) findViewById(R.id.makeSpinner);
         modelSpinner = (Spinner) findViewById(R.id.modelSpinner);
@@ -81,7 +84,6 @@ public class MainActivity extends Activity {
         url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/year";
         JsonRequest getYears = new JsonRequest();
         getYears.execute("http://www.fueleconomy.gov/ws/rest/vehicle/menu/year");
-
 
 
         goButton.setOnClickListener(new View.OnClickListener() {
@@ -105,6 +107,7 @@ public class MainActivity extends Activity {
 
             }
         });
+
         yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -120,6 +123,7 @@ public class MainActivity extends Activity {
 
             }
         });
+
         makeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -137,6 +141,31 @@ public class MainActivity extends Activity {
         });
     }
 
+    public void onRadioButtonClicked(View view) {
+        boolean checked = currentLoc.isChecked();
+
+        if (checked && !startLoc.getText().toString().equals("Use Current Location")){
+            startLoc.setText("Use Current Location");
+            startLoc.setFocusable(false);
+            startLoc.setFocusableInTouchMode(false);
+            startLoc.setClickable(false);
+            currentLoc.setChecked(true);
+        }
+        else if (startLoc.getText().toString().equals("Use Current Location")){
+            startLoc.setText("");
+            startLoc.setFocusable(true);
+            startLoc.setFocusableInTouchMode(true);
+            startLoc.setClickable(true);
+            currentLoc.setChecked(false);
+        }
+        else{
+            startLoc.setText("");
+            startLoc.setFocusable(true);
+            startLoc.setFocusableInTouchMode(true);
+            startLoc.setClickable(true);
+            currentLoc.setChecked(false);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
