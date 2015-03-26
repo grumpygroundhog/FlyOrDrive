@@ -49,23 +49,9 @@ public class MainActivity extends Activity {
     ArrayList<String> carOptionsArrayList;
     ArrayList<String> carIdArrayList;
     String url;
-
-
     String apiKey = "AIzaSyCjFdDt_AKA3uxkPJP_OSnrQrp4e9QbVyM";
-    /*what is the point of this section??? */
-//    String destination = "Miami";
-//    String origin = "Lansing";
-//    String make = "GMC";
-//    String model = "Sierra";
-//    String year = "1998";
     String googleMapUrl = "http://maps.googleapis.com/maps/api/directions/json?origin=";
-
     String milesToTravel = "";
-    /* no need for a method. Just set the string in the asyncTask and cleared it in pre-execute -charles*/
-//    public void setMilesToTravel(String milesToTravel) {
-//        this.milesToTravel = milesToTravel;
-//    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,15 +83,9 @@ public class MainActivity extends Activity {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*
-                shouldn't we put an intent in here that launches all the entered
-                info into the next activity?? -charles
-                 */
-
-                //took out unnecessary variables for memory and efficiency -charles
               String w = googleMapUrl + startLoc.getText().toString() + "&destination="
                        + endLoc.getText().toString();
-                //JSON now takes in the url as a param to shorten the async task & be more efficient -charles
+
                 JsonRequest getDirections = new JsonRequest();
                 getDirections.execute(w);
 
@@ -233,7 +213,6 @@ public class MainActivity extends Activity {
         protected Document doInBackground(String... strings) {
             if(strings[0].contains("google"))
             {
-                 /*I shortened up this code a bit using the URL class in java for efficiency and shorter code -charles*/
             /*String json = "";
                 try {
                     URL theURL = new URL(strings[0]);
@@ -266,7 +245,6 @@ public class MainActivity extends Activity {
             return null;
             //ABOVE GETS XML DATA
 
-            /*I shortened up this code a bit using the URL class in java for efficiency and shorter code -charles*/
             /*String json = "";
             try {
                 URL theURL = new URL(strings[0]);
@@ -304,21 +282,21 @@ public class MainActivity extends Activity {
 
                         carMakeArrayList.add(temp.getTextContent());
                         ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(getApplication(),android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
+                        adapter = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
                         makeSpinner.setAdapter(adapter);
                     }
                     if(url.contains("/year"))
                     {
                         carYearArrayList.add(temp.getTextContent());
                         ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(getApplication(),android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
+                        adapter = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
                         yearSpinner.setAdapter(adapter);
                     }
                     if(url.contains("model?"))
                     {
                         carModelArrayList.add(temp.getTextContent());
                         ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(getApplication(),android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
+                        adapter = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
                         modelSpinner.setAdapter(adapter);
                     }
                     if(url.contains("options?"))
@@ -328,7 +306,7 @@ public class MainActivity extends Activity {
                         carIdArrayList.add(id.getTextContent());
 
                         ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(getApplication(),android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
+                        adapter = new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
                         optionsSpinner.setAdapter(adapter);
                     }
 
@@ -340,15 +318,6 @@ public class MainActivity extends Activity {
                 //ABOVE PARSES XML
 
 
-
-
-            //removed unnecessary initializers -charles
-//            JSONObject topJsonObject;
-//            JSONArray routes = new JSONArray();
-//            JSONObject holder1 = new JSONObject();
-//            JSONArray legs = new JSONArray();
-//            JSONObject holder2 = new JSONObject();
-//            JSONObject distance = new JSONObject();
             /*try {
                 JSONObject topJsonObject = new JSONObject(s);
                 JSONArray routes = topJsonObject.getJSONArray("routes");
