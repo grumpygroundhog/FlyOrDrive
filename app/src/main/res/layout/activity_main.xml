@@ -99,4 +99,12 @@
         android:layout_alignBottom="@+id/startLoc"
         android:layout_toEndOf="@+id/startLoc" />
 
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/carOptionsSpinner"
+        android:layoutMode="opticalBounds"
+        android:layout_below="@+id/modelSpinner"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>
