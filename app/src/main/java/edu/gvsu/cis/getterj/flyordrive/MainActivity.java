@@ -16,6 +16,7 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -52,6 +53,7 @@ public class MainActivity extends Activity {
     String apiKey = "AIzaSyCjFdDt_AKA3uxkPJP_OSnrQrp4e9QbVyM";
     String googleMapUrl = "http://maps.googleapis.com/maps/api/directions/json?origin=";
     String milesToTravel = "";
+    String carMPG;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,6 +148,8 @@ public class MainActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 url = "http://www.fueleconomy.gov/ws/rest/vehicle/" + carIdArrayList.get(optionsSpinner.getSelectedItemPosition());
+                JsonRequest getMPG = new JsonRequest();
+                getMPG.execute(url);
             }
 
             @Override
@@ -270,53 +274,59 @@ public class MainActivity extends Activity {
                    carModelArrayList.add(temp.getTextContent());
 
                 }*/
+                String root = s.getDocumentElement().getNodeName();
 
-                NodeList xmlElements = s.getElementsByTagName("menuItem");
-                for(int k = 0; k < xmlElements.getLength(); k++)
+                if(root.equals("vehicle"))
                 {
-                    NodeList level2 = xmlElements.item(k).getChildNodes();
-                    Node temp = level2.item(0);
-                    Node id = level2.item(1);
-                    if(url.contains("make?"))
-                    {
-
-                        carMakeArrayList.add(temp.getTextContent());
-                        ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(MainActivity.this,
-                                android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
-                        makeSpinner.setAdapter(adapter);
-                    }
-                    if(url.contains("/year"))
-                    {
-                        carYearArrayList.add(temp.getTextContent());
-                        ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(MainActivity.this,
-                                android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
-                        yearSpinner.setAdapter(adapter);
-                    }
-                    if(url.contains("model?"))
-                    {
-                        carModelArrayList.add(temp.getTextContent());
-                        ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(MainActivity.this,
-                                android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
-                        modelSpinner.setAdapter(adapter);
-                    }
-                    if(url.contains("options?"))
-                    {
-                        carOptionsArrayList.add(temp.getTextContent());
-
-                        carIdArrayList.add(id.getTextContent());
-
-                        ArrayAdapter<String> adapter;
-                        adapter = new ArrayAdapter<String>(MainActivity.this,
-                                android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
-                        optionsSpinner.setAdapter(adapter);
-                    }
-
+                    NodeList xmlElements = s.getElementsByTagName("vehicle");
+                    NodeList level2 = xmlElements.item(0).getChildNodes();
+                    Node mpg = level2.item(19);
+                    carMPG = mpg.getTextContent();
 
                 }
-//test
+                else {
+                    NodeList xmlElements = s.getElementsByTagName("menuItem");
+                    for (int k = 0; k < xmlElements.getLength(); k++) {
+                        NodeList level2 = xmlElements.item(k).getChildNodes();
+                        Node temp = level2.item(0);
+                        Node id = level2.item(1);
+                        if (url.contains("make?")) {
+
+                            carMakeArrayList.add(temp.getTextContent());
+                            ArrayAdapter<String> adapter;
+                            adapter = new ArrayAdapter<String>(MainActivity.this,
+                                    android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
+                            makeSpinner.setAdapter(adapter);
+                        }
+                        if (url.contains("/year")) {
+                            carYearArrayList.add(temp.getTextContent());
+                            ArrayAdapter<String> adapter;
+                            adapter = new ArrayAdapter<String>(MainActivity.this,
+                                    android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
+                            yearSpinner.setAdapter(adapter);
+                        }
+                        if (url.contains("model?")) {
+                            carModelArrayList.add(temp.getTextContent());
+                            ArrayAdapter<String> adapter;
+                            adapter = new ArrayAdapter<String>(MainActivity.this,
+                                    android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
+                            modelSpinner.setAdapter(adapter);
+                        }
+                        if (url.contains("options?")) {
+                            carOptionsArrayList.add(temp.getTextContent());
+
+                            carIdArrayList.add(id.getTextContent());
+
+                            ArrayAdapter<String> adapter;
+                            adapter = new ArrayAdapter<String>(MainActivity.this,
+                                    android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
+                            optionsSpinner.setAdapter(adapter);
+                        }
+
+
+                    }
+                }
+
 
 
                 //ABOVE PARSES XML
