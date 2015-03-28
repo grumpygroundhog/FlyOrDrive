@@ -57,6 +57,9 @@ public class MainActivity extends Activity {
     String googleMapUrl = "http://maps.googleapis.com/maps/api/directions/json?origin=";
     String milesToTravel = "";
     String carMPG;
+    String regularGasPrice;
+    String driveDuration;
+    Double driveCost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +82,13 @@ public class MainActivity extends Activity {
         carMakeArrayList = new ArrayList<String>();
         carOptionsArrayList = new ArrayList<String>();
         carIdArrayList = new ArrayList<String>();
-        String carId;
+        final String carId;
         url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/year";
         JsonRequest getYears = new JsonRequest();
         getYears.execute("http://www.fueleconomy.gov/ws/rest/vehicle/menu/year");
+        url = "http://www.fueleconomy.gov/ws/rest/fuelprices";
+        JsonRequest getFuelPrice = new JsonRequest();
+        getFuelPrice.execute(url);
 
 
         goButton.setOnClickListener(new View.OnClickListener() {
@@ -95,8 +101,6 @@ public class MainActivity extends Activity {
                 getDirections.execute(url);
 
                 //launches second activity, commented out to prevent error until we have all variables needed to pass.
-                //Intent launchme = new Intent (MainActivity.this, ResultsActivity.class);
-                //startActivity (launchme);
 
             }
         });
@@ -210,7 +214,7 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class JsonRequest extends AsyncTask<String, Void, BackgroundHolder> {
+     private class JsonRequest extends AsyncTask<String, Void, BackgroundHolder> {
 
         @Override
         protected void onPreExecute() {
@@ -231,7 +235,7 @@ public class MainActivity extends Activity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                BackgroundHolder holder = new BackgroundHolder(json);
+                BackgroundHolder holder = new BackgroundHolder(json,strings[0]);
                 return (holder);
             }
             HttpURLConnection uconn;
@@ -243,7 +247,7 @@ public class MainActivity extends Activity {
                 uconn = (HttpURLConnection) u.openConnection();
                 Document doc = docBuilder.parse(uconn.getInputStream());
                 //Log.d("HANS", "XML parsed: " + doc.getNodeName());
-                BackgroundHolder xmlHolder = new BackgroundHolder(doc);
+                BackgroundHolder xmlHolder = new BackgroundHolder(doc,strings[0]);
                 return (xmlHolder);
             } catch (ParserConfigurationException e) {
                 e.printStackTrace();
@@ -253,34 +257,13 @@ public class MainActivity extends Activity {
                 e.printStackTrace();
             }
             return null;
-            //ABOVE GETS XML DATA
 
-            /*String json = "";
-            try {
-                URL theURL = new URL(strings[0]);
-                Scanner scan = new Scanner(theURL.openStream());
-                while (scan.hasNextLine()) {
-                    json += scan.nextLine();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return (json);*/
         }
 
             @Override
         protected void onPostExecute(BackgroundHolder s) {
             super.onPostExecute(s);
-
-           /* NodeList test = s.getElementsByTagName("menuItem");
-                for(int k = 0; k < test.getLength(); k++)
-                {
-                   NodeList level2 = test.item(k).getChildNodes();
-                   Node temp = level2.item(0);
-                   carModelArrayList.add(temp.getTextContent());
-
-                }*/
-                if(url.contains("google"))
+                if(s.getUrl().contains("google"))
                 {
                     String json = s.getJsonHolder();
                     try {
@@ -290,8 +273,19 @@ public class MainActivity extends Activity {
                          JSONArray legs = holder1.getJSONArray("legs");
                          JSONObject holder2 = legs.getJSONObject(0);
                          JSONObject distance = holder2.getJSONObject("distance");
-                         milesToTravel = distance.getString("text");
-                         } catch (JSONException e)
+                         milesToTravel = distance.getString("text").replaceAll("[^0-9]","");
+                         JSONObject duration = holder2.getJSONObject("duration");
+                        driveDuration = duration.getString("text");
+                        driveCost = (Double.parseDouble(milesToTravel)/Double.parseDouble(carMPG))*Double.parseDouble(regularGasPrice);
+                        Intent launchme = new Intent (MainActivity.this, ResultsActivity.class);
+                        launchme.putExtra("driveCost",driveCost);
+                        launchme.putExtra("driveMiles",milesToTravel);
+                        launchme.putExtra("driveDuration",driveDuration);
+
+                        startActivity (launchme);
+
+
+                    } catch (JSONException e)
                          {
                                  e.printStackTrace();
                             }
@@ -306,14 +300,22 @@ public class MainActivity extends Activity {
                         NodeList level2 = xmlElements.item(0).getChildNodes();
                         Node mpg = level2.item(19);
                         carMPG = mpg.getTextContent();
+                    }
+                    if(root.equals("fuelPrices"))
+                    {
+                        NodeList xmlElements = xmlDoc.getElementsByTagName("fuelPrices");
+                        NodeList level2 = xmlElements.item(0).getChildNodes();
+                        Node regGasPrice = level2.item(7);
+                        regularGasPrice = regGasPrice.getTextContent();
 
-                    } else {
+                    }
+                    else {
                         NodeList xmlElements = xmlDoc.getElementsByTagName("menuItem");
                         for (int k = 0; k < xmlElements.getLength(); k++) {
                             NodeList level2 = xmlElements.item(k).getChildNodes();
                             Node temp = level2.item(0);
                             Node id = level2.item(1);
-                            if (url.contains("make?")) {
+                            if (s.getUrl().contains("make?")) {
 
                                 carMakeArrayList.add(temp.getTextContent());
                                 ArrayAdapter<String> adapter;
@@ -321,21 +323,21 @@ public class MainActivity extends Activity {
                                         android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
                                 makeSpinner.setAdapter(adapter);
                             }
-                            if (url.contains("/year")) {
+                            if (s.getUrl().contains("/year")) {
                                 carYearArrayList.add(temp.getTextContent());
                                 ArrayAdapter<String> adapter;
                                 adapter = new ArrayAdapter<String>(MainActivity.this,
                                         android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
                                 yearSpinner.setAdapter(adapter);
                             }
-                            if (url.contains("model?")) {
+                            if (s.getUrl().contains("model?")) {
                                 carModelArrayList.add(temp.getTextContent());
                                 ArrayAdapter<String> adapter;
                                 adapter = new ArrayAdapter<String>(MainActivity.this,
                                         android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
                                 modelSpinner.setAdapter(adapter);
                             }
-                            if (url.contains("options?")) {
+                            if (s.getUrl().contains("options?")) {
                                 carOptionsArrayList.add(temp.getTextContent());
 
                                 carIdArrayList.add(id.getTextContent());

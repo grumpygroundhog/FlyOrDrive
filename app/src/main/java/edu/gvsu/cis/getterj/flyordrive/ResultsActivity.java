@@ -26,6 +26,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.NumberFormat;
+
 
 public class ResultsActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -71,6 +73,16 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
         driveCost = (TextView) findViewById(R.id.dCost);
         driveTime = (TextView) findViewById(R.id.dTime);
         driveMiles= (TextView) findViewById(R.id.dMiles);
+
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
+
+        Intent fromMain = getIntent();
+
+
+        String milesToDriveString = fromMain.getStringExtra("driveMiles") + " miles";
+        driveCost.setText(currencyFormatter.format(fromMain.getDoubleExtra("driveCost",0)));
+        driveMiles.setText(milesToDriveString);
+        driveTime.setText(fromMain.getStringExtra("driveDuration"));
 
         setUpMapIfNeeded();
         if (savedInstanceState != null) {

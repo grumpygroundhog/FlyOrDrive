@@ -24,13 +24,16 @@ import org.w3c.dom.UserDataHandler;
 public class BackgroundHolder implements Document {
     Document docHolder;
     String jsonHolder;
+    String url;
 
-    public BackgroundHolder(String json) {
+    public BackgroundHolder(String json, String tempUrl) {
         jsonHolder = json;
+        url = tempUrl;
     }
-    public BackgroundHolder(Document doc)
+    public BackgroundHolder(Document doc, String tempUrl)
     {
         docHolder = doc;
+        url = tempUrl;
     }
 
     public Document getDocHolder() {
@@ -41,6 +44,9 @@ public class BackgroundHolder implements Document {
 
     public String getJsonHolder() {
         return jsonHolder;
+    }
+    public String getUrl() {
+        return url;
     }
 
     @Override
