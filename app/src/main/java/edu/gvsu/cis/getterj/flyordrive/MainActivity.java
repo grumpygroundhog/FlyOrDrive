@@ -15,6 +15,9 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -85,15 +88,15 @@ public class MainActivity extends Activity {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              String w = googleMapUrl + startLoc.getText().toString() + "&destination="
+              url = googleMapUrl + startLoc.getText().toString() + "&destination="
                        + endLoc.getText().toString();
 
                 JsonRequest getDirections = new JsonRequest();
-                getDirections.execute(w);
+                getDirections.execute(url);
 
                 //launches second activity
-                Intent launchme = new Intent (MainActivity.this, ResultsActivity.class);
-                startActivity (launchme);
+                //Intent launchme = new Intent (MainActivity.this, ResultsActivity.class);
+                //startActivity (launchme);
 
             }
         });
@@ -207,17 +210,18 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class JsonRequest extends AsyncTask<String, Void, Document> {
+    private class JsonRequest extends AsyncTask<String, Void, BackgroundHolder> {
 
         @Override
         protected void onPreExecute() {
             milesToTravel = "";
         }
         @Override
-        protected Document doInBackground(String... strings) {
+        protected BackgroundHolder doInBackground(String... strings) {
+
             if(strings[0].contains("google"))
             {
-            /*String json = "";
+            String json = "";
                 try {
                     URL theURL = new URL(strings[0]);
                     Scanner scan = new Scanner(theURL.openStream());
@@ -227,7 +231,8 @@ public class MainActivity extends Activity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                return (json);*/
+                BackgroundHolder holder = new BackgroundHolder(json);
+                return (holder);
             }
             HttpURLConnection uconn;
             try {
@@ -238,7 +243,8 @@ public class MainActivity extends Activity {
                 uconn = (HttpURLConnection) u.openConnection();
                 Document doc = docBuilder.parse(uconn.getInputStream());
                 //Log.d("HANS", "XML parsed: " + doc.getNodeName());
-                return doc;
+                BackgroundHolder xmlHolder = new BackgroundHolder(doc);
+                return (xmlHolder);
             } catch (ParserConfigurationException e) {
                 e.printStackTrace();
             } catch (SAXException e) {
@@ -263,7 +269,7 @@ public class MainActivity extends Activity {
         }
 
             @Override
-        protected void onPostExecute(Document s) {
+        protected void onPostExecute(BackgroundHolder s) {
             super.onPostExecute(s);
 
            /* NodeList test = s.getElementsByTagName("menuItem");
@@ -274,56 +280,74 @@ public class MainActivity extends Activity {
                    carModelArrayList.add(temp.getTextContent());
 
                 }*/
-                String root = s.getDocumentElement().getNodeName();
-
-                if(root.equals("vehicle"))
+                if(url.contains("google"))
                 {
-                    NodeList xmlElements = s.getElementsByTagName("vehicle");
-                    NodeList level2 = xmlElements.item(0).getChildNodes();
-                    Node mpg = level2.item(19);
-                    carMPG = mpg.getTextContent();
+                    String json = s.getJsonHolder();
+                    try {
+                         JSONObject topJsonObject = new JSONObject(json);
+                         JSONArray routes = topJsonObject.getJSONArray("routes");
+                         JSONObject holder1 = routes.getJSONObject(0);
+                         JSONArray legs = holder1.getJSONArray("legs");
+                         JSONObject holder2 = legs.getJSONObject(0);
+                         JSONObject distance = holder2.getJSONObject("distance");
+                         milesToTravel = distance.getString("text");
+                         } catch (JSONException e)
+                         {
+                                 e.printStackTrace();
+                            }
 
                 }
                 else {
-                    NodeList xmlElements = s.getElementsByTagName("menuItem");
-                    for (int k = 0; k < xmlElements.getLength(); k++) {
-                        NodeList level2 = xmlElements.item(k).getChildNodes();
-                        Node temp = level2.item(0);
-                        Node id = level2.item(1);
-                        if (url.contains("make?")) {
+                    Document xmlDoc = s.getDocHolder();
+                    String root = s.getDocHolder().getDocumentElement().getNodeName();
 
-                            carMakeArrayList.add(temp.getTextContent());
-                            ArrayAdapter<String> adapter;
-                            adapter = new ArrayAdapter<String>(MainActivity.this,
-                                    android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
-                            makeSpinner.setAdapter(adapter);
+                    if (root.equals("vehicle")) {
+                        NodeList xmlElements = xmlDoc.getElementsByTagName("vehicle");
+                        NodeList level2 = xmlElements.item(0).getChildNodes();
+                        Node mpg = level2.item(19);
+                        carMPG = mpg.getTextContent();
+
+                    } else {
+                        NodeList xmlElements = xmlDoc.getElementsByTagName("menuItem");
+                        for (int k = 0; k < xmlElements.getLength(); k++) {
+                            NodeList level2 = xmlElements.item(k).getChildNodes();
+                            Node temp = level2.item(0);
+                            Node id = level2.item(1);
+                            if (url.contains("make?")) {
+
+                                carMakeArrayList.add(temp.getTextContent());
+                                ArrayAdapter<String> adapter;
+                                adapter = new ArrayAdapter<String>(MainActivity.this,
+                                        android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
+                                makeSpinner.setAdapter(adapter);
+                            }
+                            if (url.contains("/year")) {
+                                carYearArrayList.add(temp.getTextContent());
+                                ArrayAdapter<String> adapter;
+                                adapter = new ArrayAdapter<String>(MainActivity.this,
+                                        android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
+                                yearSpinner.setAdapter(adapter);
+                            }
+                            if (url.contains("model?")) {
+                                carModelArrayList.add(temp.getTextContent());
+                                ArrayAdapter<String> adapter;
+                                adapter = new ArrayAdapter<String>(MainActivity.this,
+                                        android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
+                                modelSpinner.setAdapter(adapter);
+                            }
+                            if (url.contains("options?")) {
+                                carOptionsArrayList.add(temp.getTextContent());
+
+                                carIdArrayList.add(id.getTextContent());
+
+                                ArrayAdapter<String> adapter;
+                                adapter = new ArrayAdapter<String>(MainActivity.this,
+                                        android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
+                                optionsSpinner.setAdapter(adapter);
+                            }
+
+
                         }
-                        if (url.contains("/year")) {
-                            carYearArrayList.add(temp.getTextContent());
-                            ArrayAdapter<String> adapter;
-                            adapter = new ArrayAdapter<String>(MainActivity.this,
-                                    android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
-                            yearSpinner.setAdapter(adapter);
-                        }
-                        if (url.contains("model?")) {
-                            carModelArrayList.add(temp.getTextContent());
-                            ArrayAdapter<String> adapter;
-                            adapter = new ArrayAdapter<String>(MainActivity.this,
-                                    android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
-                            modelSpinner.setAdapter(adapter);
-                        }
-                        if (url.contains("options?")) {
-                            carOptionsArrayList.add(temp.getTextContent());
-
-                            carIdArrayList.add(id.getTextContent());
-
-                            ArrayAdapter<String> adapter;
-                            adapter = new ArrayAdapter<String>(MainActivity.this,
-                                    android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
-                            optionsSpinner.setAdapter(adapter);
-                        }
-
-
                     }
                 }
 
@@ -332,17 +356,7 @@ public class MainActivity extends Activity {
                 //ABOVE PARSES XML
 
 
-            /*try {
-                JSONObject topJsonObject = new JSONObject(s);
-                JSONArray routes = topJsonObject.getJSONArray("routes");
-                JSONObject holder1 = routes.getJSONObject(0);
-                JSONArray legs = holder1.getJSONArray("legs");
-                JSONObject holder2 = legs.getJSONObject(0);
-                JSONObject distance = holder2.getJSONObject("distance");
-                milesToTravel = distance.getString("text");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }*/
+
 
 
         }
