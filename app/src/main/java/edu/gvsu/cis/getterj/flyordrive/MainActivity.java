@@ -94,7 +94,7 @@ public class MainActivity extends Activity {
                 JsonRequest getDirections = new JsonRequest();
                 getDirections.execute(url);
 
-                //launches second activity
+                //launches second activity, commented out to prevent error until we have all variables needed to pass.
                 //Intent launchme = new Intent (MainActivity.this, ResultsActivity.class);
                 //startActivity (launchme);
 
