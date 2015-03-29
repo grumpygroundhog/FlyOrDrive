@@ -32,10 +32,9 @@
         android:text="@string/go_button"
         android:id="@+id/goButton"
         android:background="#ff0ee324"
-        android:layout_centerHorizontal="true"
-        android:layout_alignStart="@+id/endLoc"
-        android:layout_alignEnd="@+id/endLoc"
-        android:layout_below="@+id/carOptionsSpinner" />
+        android:layout_below="@+id/driveHours"
+        android:layout_alignEnd="@+id/currLocRadioButton"
+        android:layout_alignStart="@+id/driveHours" />
 
     <Spinner
         android:layout_width="wrap_content"
@@ -88,5 +87,15 @@
         android:onClick="onRadioButtonClicked"
         android:layout_alignBottom="@+id/startLoc"
         android:layout_toEndOf="@+id/startLoc" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/driveHours"
+        android:layout_below="@+id/carOptionsSpinner"
+        android:layout_centerHorizontal="true"
+        android:hint="Driving hours per day" />
 
 </RelativeLayout>
