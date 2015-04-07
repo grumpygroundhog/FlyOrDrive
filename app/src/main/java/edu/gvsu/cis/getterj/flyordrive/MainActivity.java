@@ -15,6 +15,25 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 
+import org.apache.http.HttpVersion;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.scheme.SocketFactory;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,15 +43,22 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 
 public class MainActivity extends Activity {
     EditText startLoc;
@@ -68,7 +94,9 @@ public class MainActivity extends Activity {
     String startLon;
     String endLat;
     String endLon;
+    String flightPrice;
     ArrayList<String> airportCodesList;
+    ArrayList <String> airportCityList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +121,7 @@ public class MainActivity extends Activity {
         carOptionsArrayList = new ArrayList<String>();
         carIdArrayList = new ArrayList<String>();
         airportCodesList = new ArrayList<String>();
+        airportCityList = new ArrayList<String>();
 
         final String carId;
         url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/year";
@@ -235,7 +264,7 @@ public class MainActivity extends Activity {
         @Override
         protected BackgroundHolder doInBackground(String... strings) {
 
-            if(strings[0].contains("google") || strings[0].contains("airport"))
+            if(strings[0].contains("maps.google") || strings[0].contains("airport") || strings[0].contains("hotwire"))
             {
             String json = "";
                 try {
@@ -250,6 +279,60 @@ public class MainActivity extends Activity {
                 BackgroundHolder holder = new BackgroundHolder(json,strings[0]);
                 return (holder);
             }
+            if(strings[0].contains("qpxExpress"))
+            {
+
+                try {
+
+                    String json = "{\"request\":{\"slice\":[{\"origin\":\"" + airportCodesList.get(0) + "\",\"destination\":\"" + airportCodesList.get(1) + "\",\"date\":\"2015-04-25\"}],\"passengers\":{\"adultCount\":1,\"infantInLapCount\":0,\"infantInSeatCount\":0,\"childCount\":0,\"seniorCount\":0},\"solutions\":20,\"refundable\":false}}";
+                    JSONObject jsonOfString = new JSONObject(json);
+
+                    HttpsURLConnection httpConn;
+                    URL u = new URL(strings[0]);
+                    StringBuilder sb = new StringBuilder();
+
+                    httpConn = (HttpsURLConnection)u.openConnection();
+
+                    httpConn.setDoOutput(true);
+                    httpConn.setRequestMethod("POST");
+                    httpConn.setRequestProperty("Content-Type", "application/json");
+
+                    httpConn.connect();
+                    OutputStreamWriter wr= new OutputStreamWriter(httpConn.getOutputStream());
+                    wr.write(jsonOfString.toString());
+                    wr.close();
+
+                    int HttpResult =httpConn.getResponseCode();
+
+                    if(HttpResult ==HttpURLConnection.HTTP_OK){
+
+                        BufferedReader br = new BufferedReader(new InputStreamReader(httpConn.getInputStream(),"utf-8"));
+
+                        String line = null;
+
+                        while ((line = br.readLine()) != null) {
+                            sb.append(line + "\n");
+                        }
+
+                        br.close();
+                        BackgroundHolder googleFlightHolder = new BackgroundHolder(sb.toString(),strings[0]);
+                        return googleFlightHolder;
+
+                    }else{
+                        System.out.println(httpConn.getResponseMessage());
+                    }
+
+
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (ClientProtocolException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
             HttpURLConnection uconn;
             try {
                 DocumentBuilder docBuilder;
@@ -258,7 +341,6 @@ public class MainActivity extends Activity {
                 URL u = new URL(strings[0].replaceAll(" ","%20"));
                 uconn = (HttpURLConnection) u.openConnection();
                 Document doc = docBuilder.parse(uconn.getInputStream());
-                //Log.d("HANS", "XML parsed: " + doc.getNodeName());
                 BackgroundHolder xmlHolder = new BackgroundHolder(doc,strings[0]);
                 return (xmlHolder);
             } catch (ParserConfigurationException e) {
@@ -275,7 +357,8 @@ public class MainActivity extends Activity {
             @Override
         protected void onPostExecute(BackgroundHolder s) {
             super.onPostExecute(s);
-                if(s.getUrl().contains("google"))
+
+                if(s.getUrl().contains("maps.google"))
                 {
                     String json = s.getJsonHolder();
                     try {
@@ -316,94 +399,157 @@ public class MainActivity extends Activity {
 
                 }
                 else {
-                    if(s.getUrl().contains("airport"))
-                    {
-                        String toConvert = s.getJsonHolder().substring(s.getJsonHolder().indexOf("["),s.getJsonHolder().length());
+                    if (s.getUrl().contains("airport")) {
+                        if(airportCodesList.size() == 2 && airportCityList.size() == 2)
+                        {
+                            airportCodesList.clear();
+                            airportCityList.clear();
+                        }
+                        String toConvert = s.getJsonHolder().substring(s.getJsonHolder().indexOf("["), s.getJsonHolder().length());
 
                         try {
                             JSONArray top = new JSONArray(toConvert);
                             String tempCarrier = "0";
                             int k = 0;
                             JSONObject currObj = null;
-                            while(Integer.parseInt(tempCarrier) < 2 && k < top.length())
-                            {
+
+                            while (Integer.parseInt(tempCarrier) < 20 && k < top.length()) {
                                 currObj = top.getJSONObject(k);
                                 tempCarrier = currObj.getString("carriers");
+
+
                                 k++;
                             }
 
                             airportCodesList.add(currObj.getString("code"));
-                            if(airportCodesList.size() == 2)
-                            {
-                                Intent launchme = new Intent (MainActivity.this, ResultsActivity.class);
-                                launchme.putExtra("driveCost",driveCost);
-                                launchme.putExtra("driveMiles",milesToTravel);
-                                launchme.putExtra("driveDuration",driveDuration);
+                            airportCityList.add(currObj.getString("city"));
+                            if (airportCodesList.size() == 2) {
+                                JsonRequest getFlightPriceHotwire = new JsonRequest();
+                                getFlightPriceHotwire.execute("http://api.hotwire.com/v1/tripstarter/air?&sort=price&sortorder=asc&apikey=me7km7cggj34uffqyavrfazg&dest=" + airportCityList.get(1) + "&dist=300&origin=" + airportCityList.get(0) + "&format=json");
 
-                                startActivity (launchme);
                             }
 
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                    }
-                    else {
-                        Document xmlDoc = s.getDocHolder();
-                        String root = s.getDocHolder().getDocumentElement().getNodeName();
+                    } else {
+                        if (s.getUrl().contains("hotwire")) {
 
-                        if (root.equals("vehicle")) {
-                            NodeList xmlElements = xmlDoc.getElementsByTagName("vehicle");
-                            NodeList level2 = xmlElements.item(0).getChildNodes();
-                            Node mpg = level2.item(19);
-                            carMPG = mpg.getTextContent();
-                        }
-                        if (root.equals("fuelPrices")) {
-                            NodeList xmlElements = xmlDoc.getElementsByTagName("fuelPrices");
-                            NodeList level2 = xmlElements.item(0).getChildNodes();
-                            Node regGasPrice = level2.item(7);
-                            regularGasPrice = regGasPrice.getTextContent();
+                            try {
+                                JSONObject main = new JSONObject(s.getJsonHolder());
+                                JSONArray results = main.getJSONArray("Result");
+                                if (results.length() != 0) {
+                                    JSONObject cheapFlight = results.getJSONObject(0);
+                                    flightPrice = cheapFlight.getString("AveragePrice");
+                                    Intent launchme = new Intent(MainActivity.this, ResultsActivity.class);
+                                    launchme.putExtra("driveCost", driveCost);
+                                    launchme.putExtra("driveMiles", milesToTravel);
+                                    launchme.putExtra("driveDuration", driveDuration);
+                                    launchme.putExtra("startLat", startLat);
+                                    launchme.putExtra("startLon", startLon);
+                                    launchme.putExtra("endLon", endLon);
+                                    launchme.putExtra("endLat", endLat);
+                                    launchme.putExtra("flightPrice", flightPrice);
 
-                        } else {
-                            NodeList xmlElements = xmlDoc.getElementsByTagName("menuItem");
-                            for (int k = 0; k < xmlElements.getLength(); k++) {
-                                NodeList level2 = xmlElements.item(k).getChildNodes();
-                                Node temp = level2.item(0);
-                                Node id = level2.item(1);
-                                if (s.getUrl().contains("make?")) {
+                                    startActivity(launchme);
 
-                                    carMakeArrayList.add(temp.getTextContent());
-                                    ArrayAdapter<String> adapter;
-                                    adapter = new ArrayAdapter<String>(MainActivity.this,
-                                            android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
-                                    makeSpinner.setAdapter(adapter);
-                                }
-                                if (s.getUrl().contains("/year")) {
-                                    carYearArrayList.add(temp.getTextContent());
-                                    ArrayAdapter<String> adapter;
-                                    adapter = new ArrayAdapter<String>(MainActivity.this,
-                                            android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
-                                    yearSpinner.setAdapter(adapter);
-                                }
-                                if (s.getUrl().contains("model?")) {
-                                    carModelArrayList.add(temp.getTextContent());
-                                    ArrayAdapter<String> adapter;
-                                    adapter = new ArrayAdapter<String>(MainActivity.this,
-                                            android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
-                                    modelSpinner.setAdapter(adapter);
-                                }
-                                if (s.getUrl().contains("options?")) {
-                                    carOptionsArrayList.add(temp.getTextContent());
-
-                                    carIdArrayList.add(id.getTextContent());
-
-                                    ArrayAdapter<String> adapter;
-                                    adapter = new ArrayAdapter<String>(MainActivity.this,
-                                            android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
-                                    optionsSpinner.setAdapter(adapter);
+                                } else {
+                                    JsonRequest googleFlightRequest = new JsonRequest();
+                                     googleFlightRequest.execute("https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyBy1E3Ad0eF6HSiezWSd0SJ98V5ZPYLxYc");
                                 }
 
-
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
+
+                        }else
+                        {
+                        if(s.getUrl().contains("qpxExpress"))
+                        {
+                            try {
+                                JSONObject googleFlight = new JSONObject(s.getJsonHolder());
+                                JSONObject trips = googleFlight.getJSONObject("trips");
+                                JSONArray tripOptions = trips.getJSONArray("tripOption");
+                                JSONObject cheapestFlight = tripOptions.getJSONObject(0);
+                                flightPrice = cheapestFlight.getString("saleTotal").replaceAll("USD","");
+
+
+                                Intent launchme = new Intent(MainActivity.this, ResultsActivity.class);
+                                launchme.putExtra("driveCost", driveCost);
+                                launchme.putExtra("driveMiles", milesToTravel);
+                                launchme.putExtra("driveDuration", driveDuration);
+                                launchme.putExtra("startLat", startLat);
+                                launchme.putExtra("startLon", startLon);
+                                launchme.putExtra("endLon", endLon);
+                                launchme.putExtra("endLat", endLat);
+                                launchme.putExtra("flightPrice",flightPrice);
+
+                                startActivity(launchme);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                         else {
+                            Document xmlDoc = s.getDocHolder();
+                            String root = s.getDocHolder().getDocumentElement().getNodeName();
+
+                            if (root.equals("vehicle")) {
+                                NodeList xmlElements = xmlDoc.getElementsByTagName("vehicle");
+                                NodeList level2 = xmlElements.item(0).getChildNodes();
+                                Node mpg = level2.item(19);
+                                carMPG = mpg.getTextContent();
+                            }
+                            if (root.equals("fuelPrices")) {
+                                NodeList xmlElements = xmlDoc.getElementsByTagName("fuelPrices");
+                                NodeList level2 = xmlElements.item(0).getChildNodes();
+                                Node regGasPrice = level2.item(7);
+                                regularGasPrice = regGasPrice.getTextContent();
+
+                            } else {
+                                NodeList xmlElements = xmlDoc.getElementsByTagName("menuItem");
+                                for (int k = 0; k < xmlElements.getLength(); k++) {
+                                    NodeList level2 = xmlElements.item(k).getChildNodes();
+                                    Node temp = level2.item(0);
+                                    Node id = level2.item(1);
+                                    if (s.getUrl().contains("make?")) {
+
+                                        carMakeArrayList.add(temp.getTextContent());
+                                        ArrayAdapter<String> adapter;
+                                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                                android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
+                                        makeSpinner.setAdapter(adapter);
+                                    }
+                                    if (s.getUrl().contains("/year")) {
+                                        carYearArrayList.add(temp.getTextContent());
+                                        ArrayAdapter<String> adapter;
+                                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                                android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
+                                        yearSpinner.setAdapter(adapter);
+                                    }
+                                    if (s.getUrl().contains("model?")) {
+                                        carModelArrayList.add(temp.getTextContent());
+                                        ArrayAdapter<String> adapter;
+                                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                                android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
+                                        modelSpinner.setAdapter(adapter);
+                                    }
+                                    if (s.getUrl().contains("options?")) {
+                                        carOptionsArrayList.add(temp.getTextContent());
+
+                                        carIdArrayList.add(id.getTextContent());
+
+                                        ArrayAdapter<String> adapter;
+                                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                                android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
+                                        optionsSpinner.setAdapter(adapter);
+                                    }
+
+
+                                }
+                            }
+                        }
                         }
                     }
                 }
@@ -418,4 +564,5 @@ public class MainActivity extends Activity {
 
         }
     }
+
 }

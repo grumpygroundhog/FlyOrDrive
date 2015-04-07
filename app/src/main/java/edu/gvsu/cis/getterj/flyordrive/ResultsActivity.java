@@ -38,6 +38,7 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
     private TextView driveCost;
     private TextView driveTime;
     private TextView driveMiles;
+    private TextView resultsLabel;
 
     private Marker myMarker;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -73,17 +74,27 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
         driveCost = (TextView) findViewById(R.id.dCost);
         driveTime = (TextView) findViewById(R.id.dTime);
         driveMiles= (TextView) findViewById(R.id.dMiles);
+        resultsLabel = (TextView) findViewById(R.id.resultsLabel);
 
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
 
         Intent fromMain = getIntent();
 
-
+        double flightPrice = Double.parseDouble(fromMain.getStringExtra("flightPrice"));
+        double drivePrice = fromMain.getDoubleExtra("driveCost",0);
         String milesToDriveString = fromMain.getStringExtra("driveMiles") + " miles";
-        driveCost.setText(currencyFormatter.format(fromMain.getDoubleExtra("driveCost",0)));
+        driveCost.setText(currencyFormatter.format(drivePrice));
         driveMiles.setText(milesToDriveString);
         driveTime.setText(fromMain.getStringExtra("driveDuration"));
-
+        flyCost.setText(currencyFormatter.format(flightPrice));
+        if(drivePrice < flightPrice)
+        {
+            resultsLabel.setText("Drive!");
+        }
+        else
+        {
+            resultsLabel.setText("Fly!");
+        }
         setUpMapIfNeeded();
         if (savedInstanceState != null) {
             mIsInResolution = savedInstanceState.getBoolean(KEY_IN_RESOLUTION, false);
