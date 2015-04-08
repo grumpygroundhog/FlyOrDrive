@@ -80,6 +80,9 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
 
         Intent fromMain = getIntent();
 
+        int flightTimeInMins = Integer.parseInt(fromMain.getStringExtra("flyingTime"));
+        int flightHours = flightTimeInMins/60;
+        int flightMins = flightTimeInMins%60;
         double flightPrice = Double.parseDouble(fromMain.getStringExtra("flightPrice"));
         double drivePrice = fromMain.getDoubleExtra("driveCost",0);
         String milesToDriveString = fromMain.getStringExtra("driveMiles") + " miles";
@@ -87,6 +90,8 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
         driveMiles.setText(milesToDriveString);
         driveTime.setText(fromMain.getStringExtra("driveDuration"));
         flyCost.setText(currencyFormatter.format(flightPrice));
+        flyMiles.setText(fromMain.getIntExtra("flightMileage",0) + " miles");
+        flyTime.setText(flightHours + " hours " + flightMins + " mins");
         if(drivePrice < flightPrice)
         {
             resultsLabel.setText("Drive!");

@@ -1,13 +1,18 @@
 package edu.gvsu.cis.getterj.flyordrive;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -15,38 +20,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
-import android.widget.TextView;
 
-import org.apache.http.HttpVersion;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.scheme.SocketFactory;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
-import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -62,7 +46,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements LocationListener {
     EditText startLoc;
     EditText endLoc;
 //    EditText carMake;
@@ -99,6 +83,12 @@ public class MainActivity extends Activity {
     String flightPrice;
     ArrayList<String> airportCodesList;
     ArrayList <String> airportCityList;
+    boolean anyAirport = false;
+    Double currLongitude;
+    Double currLatitude;
+    ProgressDialog prog;
+    String flyingTime;
+    int flightMileage = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,8 +127,15 @@ public class MainActivity extends Activity {
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              url = googleMapUrl + startLoc.getText().toString() + "&destination="
-                       + endLoc.getText().toString();
+              if(currentLoc.isChecked() == true)
+              {
+                  url = googleMapUrl + currLatitude + "," + currLongitude + "&destination="
+                          + endLoc.getText().toString();
+              }
+                else {
+                  url = googleMapUrl + startLoc.getText().toString() + "&destination="
+                          + endLoc.getText().toString();
+              }
 
                 JsonRequest getDirections = new JsonRequest();
                 getDirections.execute(url);
@@ -218,6 +215,16 @@ public class MainActivity extends Activity {
             startLoc.setFocusableInTouchMode(false);
             startLoc.setClickable(false);
             currentLoc.setChecked(true);
+            Criteria criteria = new Criteria();
+
+            LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            currLongitude = location.getLongitude();
+            currLatitude = location.getLatitude();
+
+
+
+
         }
         else if (startLoc.getText().toString().equals("Use Current Location")){
             startLoc.setText("");
@@ -225,6 +232,7 @@ public class MainActivity extends Activity {
             startLoc.setFocusableInTouchMode(true);
             startLoc.setClickable(true);
             currentLoc.setChecked(false);
+
         }
         else{
             startLoc.setText("");
@@ -257,11 +265,37 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-     private class JsonRequest extends AsyncTask<String, Void, BackgroundHolder> {
+    @Override
+    public void onLocationChanged(Location location) {
+    Double lat = location.getLatitude();
+        Double lon = location.getLongitude();
+        System.out.print(lat + lon);
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
+    }
+    private ProgressDialog dialog;
+
+    private class JsonRequest extends AsyncTask<String, Void, BackgroundHolder> {
 
         @Override
         protected void onPreExecute() {
-
+           /* prog = new ProgressDialog(MainActivity.this);
+            prog.setMessage("Loading...");
+            prog.show(); */
         }
         @Override
         protected BackgroundHolder doInBackground(String... strings) {
@@ -402,10 +436,19 @@ public class MainActivity extends Activity {
                 }
                 else {
                     if (s.getUrl().contains("airport")) {
-                        if(airportCodesList.size() == 2 && airportCityList.size() == 2)
+                        int carriers;
+                        if(airportCodesList.size() >= 2 && airportCityList.size() >= 2)
                         {
                             airportCodesList.clear();
                             airportCityList.clear();
+                        }
+                        if(anyAirport == true)
+                        {
+                            carriers = 2;
+                        }
+                        else
+                        {
+                            carriers = 20;
                         }
                         String toConvert = s.getJsonHolder().substring(s.getJsonHolder().indexOf("["), s.getJsonHolder().length());
 
@@ -415,7 +458,7 @@ public class MainActivity extends Activity {
                             int k = 0;
                             JSONObject currObj = null;
 
-                            while (Integer.parseInt(tempCarrier) < 20 && k < top.length()) {
+                            while (Integer.parseInt(tempCarrier) < carriers && k < top.length()) {
                                 currObj = top.getJSONObject(k);
                                 tempCarrier = currObj.getString("carriers");
 
@@ -425,10 +468,16 @@ public class MainActivity extends Activity {
 
                             airportCodesList.add(currObj.getString("code"));
                             airportCityList.add(currObj.getString("city"));
-                            if (airportCodesList.size() == 2) {
+                            if (airportCodesList.size() == 2 && anyAirport == false) {
                                 JsonRequest getFlightPriceHotwire = new JsonRequest();
                                 getFlightPriceHotwire.execute("http://api.hotwire.com/v1/tripstarter/air?&sort=price&sortorder=asc&apikey=me7km7cggj34uffqyavrfazg&dest=" + airportCityList.get(1) + "&dist=300&origin=" + airportCityList.get(0) + "&format=json");
 
+                            }
+                            if(anyAirport == true && airportCodesList.size()==2)
+                            {
+                                anyAirport = false;
+                                JsonRequest googleFlightRequest = new JsonRequest();
+                                googleFlightRequest.execute("https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyBy1E3Ad0eF6HSiezWSd0SJ98V5ZPYLxYc");
                             }
 
                         } catch (JSONException e) {
@@ -456,24 +505,42 @@ public class MainActivity extends Activity {
                                     startActivity(launchme);
 
                                 } else {
-                                    JsonRequest googleFlightRequest = new JsonRequest();
-                                     googleFlightRequest.execute("https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyBy1E3Ad0eF6HSiezWSd0SJ98V5ZPYLxYc");
+                                    anyAirport = true;
+                                    JsonRequest getNewAirports = new JsonRequest();
+                                    getNewAirports.execute("http://airports.pidgets.com/v1/airports?near=" + startLat + "," + startLon + "&format=json");
+                                    JsonRequest getNewAirports2 = new JsonRequest();
+                                    getNewAirports2.execute("http://airports.pidgets.com/v1/airports?near=" + endLat + "," + endLon+ "&format=json");
+
                                 }
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
 
-                        }else
-                        {
-                        if(s.getUrl().contains("qpxExpress"))
-                        {
+                        }else {
+                        if(s.getUrl().contains("qpxExpress")) {
                             try {
+                                flightMileage = 0;
+                                flightPrice = null;
+                                flyingTime = null;
                                 JSONObject googleFlight = new JSONObject(s.getJsonHolder());
                                 JSONObject trips = googleFlight.getJSONObject("trips");
                                 JSONArray tripOptions = trips.getJSONArray("tripOption");
                                 JSONObject cheapestFlight = tripOptions.getJSONObject(0);
                                 flightPrice = cheapestFlight.getString("saleTotal").replaceAll("USD","");
+                                JSONArray slice = cheapestFlight.getJSONArray("slice");
+                                JSONObject segmentHolder = slice.getJSONObject(0);
+                                JSONArray segments = segmentHolder.getJSONArray("segment");
+                                flyingTime = segmentHolder.get("duration").toString();
+                                for(int i = 0; i < segments.length(); i++)
+                                {
+                                    JSONObject currObj = segments.getJSONObject(i);
+                                    JSONArray currArray = currObj.getJSONArray("leg");
+                                    JSONObject currLeg = currArray.getJSONObject(0);
+                                    flightMileage = flightMileage + Integer.parseInt(currLeg.get("mileage").toString());
+
+                                }
+
 
 
                                 Intent launchme = new Intent(MainActivity.this, ResultsActivity.class);
@@ -485,6 +552,8 @@ public class MainActivity extends Activity {
                                 launchme.putExtra("endLon", endLon);
                                 launchme.putExtra("endLat", endLat);
                                 launchme.putExtra("flightPrice",flightPrice);
+                                launchme.putExtra("flyingTime", flyingTime);
+                                launchme.putExtra("flightMileage",flightMileage);
 
                                 startActivity(launchme);
 
@@ -559,10 +628,7 @@ public class MainActivity extends Activity {
 
 
                 //ABOVE PARSES XML
-
-
-
-
+                //prog.dismiss();
 
         }
     }
