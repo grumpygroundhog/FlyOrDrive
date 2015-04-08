@@ -98,12 +98,6 @@
         android:layout_centerHorizontal="true"
         android:hint="Driving hours per day" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="onResumeTest"
-        android:id="@+id/onresumeTest"
-        android:layout_below="@+id/makeSpinner"
-        android:layout_alignParentEnd="true" />
+
 
 </RelativeLayout>
