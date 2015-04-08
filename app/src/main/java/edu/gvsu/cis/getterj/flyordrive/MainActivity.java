@@ -38,6 +38,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Scanner;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -89,6 +91,8 @@ public class MainActivity extends Activity implements LocationListener {
     ProgressDialog prog;
     String flyingTime;
     int flightMileage = 0;
+    int straightDistance;
+    String estimatedFlightTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -319,8 +323,15 @@ public class MainActivity extends Activity implements LocationListener {
             {
 
                 try {
+                    Calendar cal = Calendar.getInstance();
+                    //cal.setTime(cal.getTime());
+                    cal.add(Calendar.DATE, 14);
+                    Date futureDate = cal.getTime();
+                    String intMonth = (String) android.text.format.DateFormat.format("MM", futureDate); //06
+                    String year = (String) android.text.format.DateFormat.format("yyyy", futureDate); //2013
+                    String day = (String) android.text.format.DateFormat.format("dd", futureDate); //20
 
-                    String json = "{\"request\":{\"slice\":[{\"origin\":\"" + airportCodesList.get(0) + "\",\"destination\":\"" + airportCodesList.get(1) + "\",\"date\":\"2015-04-25\"}],\"passengers\":{\"adultCount\":1,\"infantInLapCount\":0,\"infantInSeatCount\":0,\"childCount\":0,\"seniorCount\":0},\"solutions\":20,\"refundable\":false}}";
+                    String json = "{\"request\":{\"slice\":[{\"origin\":\"" + airportCodesList.get(0) + "\",\"destination\":\"" + airportCodesList.get(1) + "\",\"date\":\"" + year + "-" + intMonth + "-" + day + "\"}],\"passengers\":{\"adultCount\":1,\"infantInLapCount\":0,\"infantInSeatCount\":0,\"childCount\":0,\"seniorCount\":0},\"solutions\":20,\"refundable\":false}}";
                     JSONObject jsonOfString = new JSONObject(json);
 
                     HttpsURLConnection httpConn;
@@ -414,6 +425,10 @@ public class MainActivity extends Activity implements LocationListener {
                         JSONObject endLoc = holder2.getJSONObject("end_location");
                         endLon = endLoc.getString("lng");
                         endLat = endLoc.getString("lat");
+                        float[] results = new float[1];
+                        Location.distanceBetween(Double.parseDouble(startLat),Double.parseDouble(startLon),Double.parseDouble(endLat),Double.parseDouble(endLon),results);
+                        straightDistance = (int) (results[0] * 0.00062137);
+                        estimatedFlightTime = "" + (int)((straightDistance / 9.3) + 45);
 
 
                         double stopCost = ((Math.ceil(driveTimeInHours/ Double.parseDouble(driveHours.getText().toString()))-1) * hotelCostPerNight);
@@ -437,7 +452,7 @@ public class MainActivity extends Activity implements LocationListener {
                 else {
                     if (s.getUrl().contains("airport")) {
                         int carriers;
-                        if(airportCodesList.size() >= 2 && airportCityList.size() >= 2)
+                        if(airportCodesList.size() >= 2 || airportCityList.size() >= 2)
                         {
                             airportCodesList.clear();
                             airportCityList.clear();
@@ -492,6 +507,8 @@ public class MainActivity extends Activity implements LocationListener {
                                 if (results.length() != 0) {
                                     JSONObject cheapFlight = results.getJSONObject(0);
                                     flightPrice = cheapFlight.getString("AveragePrice");
+                                    flightMileage = straightDistance;
+                                    flyingTime = estimatedFlightTime;
                                     Intent launchme = new Intent(MainActivity.this, ResultsActivity.class);
                                     launchme.putExtra("driveCost", driveCost);
                                     launchme.putExtra("driveMiles", milesToTravel);
@@ -501,6 +518,8 @@ public class MainActivity extends Activity implements LocationListener {
                                     launchme.putExtra("endLon", endLon);
                                     launchme.putExtra("endLat", endLat);
                                     launchme.putExtra("flightPrice", flightPrice);
+                                    launchme.putExtra("flightMileage",flightMileage);
+                                    launchme.putExtra("flyingTime",flyingTime);
 
                                     startActivity(launchme);
 
