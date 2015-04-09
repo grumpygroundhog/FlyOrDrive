@@ -159,10 +159,16 @@ LocationListener{
         JsonRequest getFuelPrice = new JsonRequest();
         getFuelPrice.execute(url);
 
+        prog = new ProgressDialog(MainActivity.this);
+        prog.setTitle("Processing Travel Information");
+        prog.setIndeterminate(true);
+        prog.setMessage("Please wait.....");
+
 
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                prog.show();
               if(currentLoc.isChecked() == true)
               {
                   url = googleMapUrl + currLatitude + "," + currLongitude + "&destination="
@@ -176,7 +182,6 @@ LocationListener{
                 JsonRequest getDirections = new JsonRequest();
                 getDirections.execute(url);
 
-                //launches second activity, commented out to prevent error until we have all variables needed to pass.
 
             }
         });
@@ -184,7 +189,8 @@ LocationListener{
         yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/make?year=" + yearSpinner.getSelectedItem().toString();
+                url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/make?year=" +
+                        yearSpinner.getSelectedItem().toString();
 
                 carMakeArrayList.clear();
                 JsonRequest getMakes = new JsonRequest();
@@ -460,9 +466,7 @@ LocationListener{
 
         @Override
         protected void onPreExecute() {
-           /* prog = new ProgressDialog(MainActivity.this);
-            prog.setMessage("Loading...");
-            prog.show(); */
+
         }
         @Override
         protected BackgroundHolder doInBackground(String... strings) {
@@ -601,17 +605,20 @@ LocationListener{
                         estimatedFlightTime = "" + (int)((straightDistance / 9.3) + 45);
 
 
-                        double stopCost = ((Math.ceil(driveTimeInHours/ Double.parseDouble(driveHours.getText().toString()))-1) * hotelCostPerNight);
-                        driveCost = (Double.parseDouble(milesToTravel)/Double.parseDouble(carMPG))*Double.parseDouble(regularGasPrice) + stopCost;
+                        double stopCost = ((Math.ceil(driveTimeInHours/
+                                Double.parseDouble(driveHours.getText().toString()))-1)
+                                * hotelCostPerNight);
+                        driveCost = (Double.parseDouble(milesToTravel)/
+                                Double.parseDouble(carMPG))*
+                                Double.parseDouble(regularGasPrice) + stopCost;
 
                         airportCodesList.clear();
                         JsonRequest getStartAirCode = new JsonRequest();
-                        getStartAirCode.execute("http://airports.pidgets.com/v1/airports?near=" + startLat + "," + startLon + "&format=json");
+                        getStartAirCode.execute("http://airports.pidgets.com/v1/airports?near=" +
+                                startLat + "," + startLon + "&format=json");
                         JsonRequest getEndAirCode = new JsonRequest();
-                        getEndAirCode.execute("http://airports.pidgets.com/v1/airports?near=" + endLat + "," + endLon+ "&format=json");
-
-
-
+                        getEndAirCode.execute("http://airports.pidgets.com/v1/airports?near=" +
+                                endLat + "," + endLon+ "&format=json");
 
                     } catch (JSONException e)
                          {
@@ -635,7 +642,8 @@ LocationListener{
                         {
                             carriers = 20;
                         }
-                        String toConvert = s.getJsonHolder().substring(s.getJsonHolder().indexOf("["), s.getJsonHolder().length());
+                        String toConvert = s.getJsonHolder().substring(s.getJsonHolder().indexOf("["),
+                                s.getJsonHolder().length());
 
                         try {
                             JSONArray top = new JSONArray(toConvert);
@@ -696,14 +704,19 @@ LocationListener{
                                     launchme.putExtra("flightMileage",flightMileage);
                                     launchme.putExtra("flyingTime",flyingTime);
 
+                                    if (prog.isShowing()) {
+                                        prog.hide();
+                                    }
                                     startActivity(launchme);
 
                                 } else {
                                     anyAirport = true;
                                     JsonRequest getNewAirports = new JsonRequest();
-                                    getNewAirports.execute("http://airports.pidgets.com/v1/airports?near=" + startLat + "," + startLon + "&format=json");
+                                    getNewAirports.execute("http://airports.pidgets.com/v1/airports?near="
+                                            + startLat + "," + startLon + "&format=json");
                                     JsonRequest getNewAirports2 = new JsonRequest();
-                                    getNewAirports2.execute("http://airports.pidgets.com/v1/airports?near=" + endLat + "," + endLon+ "&format=json");
+                                    getNewAirports2.execute("http://airports.pidgets.com/v1/airports?near="
+                                            + endLat + "," + endLon+ "&format=json");
 
                                 }
 
@@ -818,11 +831,6 @@ LocationListener{
                         }
                     }
                 }
-
-
-
-                //ABOVE PARSES XML
-                //prog.dismiss();
 
         }
     }
