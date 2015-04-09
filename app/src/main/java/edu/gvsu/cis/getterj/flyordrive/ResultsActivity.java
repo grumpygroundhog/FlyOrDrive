@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -25,13 +26,14 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.text.NumberFormat;
 
 
 public class ResultsActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        GoogleApiClient.OnConnectionFailedListener {
     private TextView flyCost;
     private TextView flyTime;
     private TextView flyMiles;
@@ -39,6 +41,10 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
     private TextView driveTime;
     private TextView driveMiles;
     private TextView resultsLabel;
+    Double startLat;
+    Double startLon;
+    Double endLat;
+    Double endLon;
 
     private Marker myMarker;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -73,7 +79,7 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
         flyMiles = (TextView) findViewById(R.id.fMiles);
         driveCost = (TextView) findViewById(R.id.dCost);
         driveTime = (TextView) findViewById(R.id.dTime);
-        driveMiles= (TextView) findViewById(R.id.dMiles);
+        driveMiles = (TextView) findViewById(R.id.dMiles);
         resultsLabel = (TextView) findViewById(R.id.resultsLabel);
 
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
@@ -86,6 +92,10 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
         double flightPrice = Double.parseDouble(fromMain.getStringExtra("flightPrice"));
         double drivePrice = fromMain.getDoubleExtra("driveCost",0);
         String milesToDriveString = fromMain.getStringExtra("driveMiles") + " miles";
+        startLat = Double.parseDouble(fromMain.getStringExtra("startLat"));
+        startLon = Double.parseDouble(fromMain.getStringExtra("startLon"));
+        endLat = Double.parseDouble(fromMain.getStringExtra("endLat"));
+        endLon = Double.parseDouble(fromMain.getStringExtra("endLon"));
         driveCost.setText(currencyFormatter.format(drivePrice));
         driveMiles.setText(milesToDriveString);
         driveTime.setText(fromMain.getStringExtra("driveDuration"));
@@ -202,15 +212,15 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.i(TAG, "GoogleApiClient connected");
-        LocationRequest req = new LocationRequest();
-        req.setInterval (3000); /* every 3 seconds */
-        req.setFastestInterval (1000); /* how fast our app can handle the notifications */
-        req.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-
-        LocationServices.FusedLocationApi.requestLocationUpdates (
-                mGoogleApiClient,   /* fill in with the name of your GoogleMap object */
-                req,
-                this);  /* this class is the LocationListener */
+//        LocationRequest req = new LocationRequest();
+//        req.setInterval (3000); /* every 3 seconds */
+//        req.setFastestInterval (1000); /* how fast our app can handle the notifications */
+//        req.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+//
+//        LocationServices.FusedLocationApi.requestLocationUpdates (
+//                mGoogleApiClient,   /* fill in with the name of your GoogleMap object */
+//                req,
+//                this);  /* this class is the LocationListener */
     }
 
     /**
@@ -291,20 +301,20 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-    }
+        mMap.addMarker(new MarkerOptions().position(new LatLng(startLat, startLon)).title("Marker"));
 
-    @Override
-    public void onLocationChanged(Location location) {
-        /* fill in the blanks with the incoming parameter of onLocationChanged */
-        LatLng geoPos = new LatLng(location.getLatitude(), location.getLongitude());
+        mMap.addPolyline(new PolylineOptions()
+                .add(new LatLng(startLat, startLon), new LatLng(endLat, endLon))
+                .width(10)
+                .color(Color.RED));
+
+        LatLng geoPos = new LatLng(startLat, startLon);
+
         CameraPosition campos = CameraPosition.builder()
                 .target(geoPos)
-                .zoom(18)
+                .zoom(5)
                 .build();
-/* zoom level 18: buildings. Smaller number zoom-out, bigger: zoom-in */
 
-/* fill in the blanks with the name of your GoogleMap object */
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(campos));
         if (myMarker == null) /* if we don't have a marker yet, create and add */
             myMarker = mMap.addMarker(new MarkerOptions().position(geoPos));
