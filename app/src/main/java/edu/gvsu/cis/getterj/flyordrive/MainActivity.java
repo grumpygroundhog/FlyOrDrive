@@ -3,7 +3,9 @@ package edu.gvsu.cis.getterj.flyordrive;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -20,6 +22,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
@@ -48,7 +56,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 
-public class MainActivity extends Activity implements LocationListener {
+public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener,
+LocationListener{
     EditText startLoc;
     EditText endLoc;
 //    EditText carMake;
@@ -88,11 +98,33 @@ public class MainActivity extends Activity implements LocationListener {
     boolean anyAirport = false;
     Double currLongitude;
     Double currLatitude;
+    Double tempLat;
+    Double tempLon;
     ProgressDialog prog;
     String flyingTime;
     int flightMileage = 0;
     int straightDistance;
     String estimatedFlightTime;
+
+    private static final String TAG = "GglPlayServicesActivity";
+
+    private static final String KEY_IN_RESOLUTION = "is_in_resolution";
+
+    /**
+     * Request code for auto Google Play Services error resolution.
+     */
+    protected static final int REQUEST_CODE_RESOLUTION = 1;
+
+    /**
+     * Google API client.
+     */
+    private GoogleApiClient mGoogleApiClient;
+
+    /**
+     * Determines if the client is in a resolution state, and
+     * waiting for resolution intent to return.
+     */
+    private boolean mIsInResolution;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,7 +200,9 @@ public class MainActivity extends Activity implements LocationListener {
         makeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=" + yearSpinner.getSelectedItem().toString() + "&make=" + makeSpinner.getSelectedItem().toString();
+                url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year="
+                        + yearSpinner.getSelectedItem().toString() + "&make="
+                        + makeSpinner.getSelectedItem().toString();
 
                 carModelArrayList.clear();
                 JsonRequest getModels = new JsonRequest();
@@ -183,7 +217,10 @@ public class MainActivity extends Activity implements LocationListener {
         modelSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=" + yearSpinner.getSelectedItem().toString() + "&make=" + makeSpinner.getSelectedItem().toString() + "&model=" + modelSpinner.getSelectedItem().toString();
+                url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year="
+                        + yearSpinner.getSelectedItem().toString() + "&make="
+                        + makeSpinner.getSelectedItem().toString() + "&model="
+                        + modelSpinner.getSelectedItem().toString();
                 carOptionsArrayList.clear();
                 carIdArrayList.clear();
                 JsonRequest getOptions = new JsonRequest();
@@ -198,7 +235,8 @@ public class MainActivity extends Activity implements LocationListener {
         optionsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                url = "http://www.fueleconomy.gov/ws/rest/vehicle/" + carIdArrayList.get(optionsSpinner.getSelectedItemPosition());
+                url = "http://www.fueleconomy.gov/ws/rest/vehicle/"
+                        + carIdArrayList.get(optionsSpinner.getSelectedItemPosition());
                 JsonRequest getMPG = new JsonRequest();
                 getMPG.execute(url);
             }
@@ -209,6 +247,133 @@ public class MainActivity extends Activity implements LocationListener {
             }
         });
     }
+
+    /**
+     * Called when the Activity is made visible.
+     * A connection to Play Services need to be initiated as
+     * soon as the activity is visible. Registers {@code ConnectionCallbacks}
+     * and {@code OnConnectionFailedListener} on the
+     * activities itself.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    // Optionally, add additional APIs and scopes if required.
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+        mGoogleApiClient.connect();
+    }
+
+    /**
+     * Called when activity gets invisible. Connection to Play Services needs to
+     * be disconnected as soon as an activity is invisible.
+     */
+    @Override
+    protected void onStop() {
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+    /**
+     * Saves the resolution state.
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_IN_RESOLUTION, mIsInResolution);
+    }
+
+    /**
+     * Handles Google Play Services resolution callbacks.
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQUEST_CODE_RESOLUTION:
+                retryConnecting();
+                break;
+        }
+    }
+
+    private void retryConnecting() {
+        mIsInResolution = false;
+        if (!mGoogleApiClient.isConnecting()) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    /**
+     * Called when {@code mGoogleApiClient} is connected.
+     */
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        Log.i(TAG, "GoogleApiClient connected");
+        LocationRequest req = new LocationRequest();
+        req.setInterval (3000); /* every 3 seconds */
+        req.setFastestInterval (1000); /* how fast our app can handle the notifications */
+        req.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+
+        LocationServices.FusedLocationApi.requestLocationUpdates (
+                mGoogleApiClient,   /* fill in with the name of your GoogleMap object */
+                req,
+                (com.google.android.gms.location.LocationListener) this);  /* this class is the LocationListener */
+    }
+
+    /**
+     * Called when {@code mGoogleApiClient} connection is suspended.
+     */
+    @Override
+    public void onConnectionSuspended(int cause) {
+        Log.i(TAG, "GoogleApiClient connection suspended");
+        retryConnecting();
+    }
+
+    /**
+     * Called when {@code mGoogleApiClient} is trying to connect but failed.
+     * Handle {@code result.getResolution()} if there is a resolution
+     * available.
+     */
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        Log.i(TAG, "GoogleApiClient connection failed: " + result.toString());
+        if (!result.hasResolution()) {
+            // Show a localized error dialog.
+            GooglePlayServicesUtil.getErrorDialog(
+                    result.getErrorCode(), this, 0, new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            retryConnecting();
+                        }
+                    }).show();
+            return;
+        }
+        // If there is an existing resolution error being displayed or a resolution
+        // activity has started before, do nothing and wait for resolution
+        // progress to be completed.
+        if (mIsInResolution) {
+            return;
+        }
+        mIsInResolution = true;
+        try {
+            result.startResolutionForResult(this, REQUEST_CODE_RESOLUTION);
+        } catch (IntentSender.SendIntentException e) {
+            Log.e(TAG, "Exception while starting resolution activity", e);
+            retryConnecting();
+        }
+    }
+
 
     public void onRadioButtonClicked(View view) {
         boolean checked = currentLoc.isChecked();
@@ -221,10 +386,8 @@ public class MainActivity extends Activity implements LocationListener {
             currentLoc.setChecked(true);
             Criteria criteria = new Criteria();
 
-            LocationManager lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            currLongitude = location.getLongitude();
-            currLatitude = location.getLatitude();
+            currLongitude = tempLon;
+            currLatitude = tempLat;
 
 
 
@@ -271,9 +434,9 @@ public class MainActivity extends Activity implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-    Double lat = location.getLatitude();
-        Double lon = location.getLongitude();
-        System.out.print(lat + lon);
+    tempLat = location.getLatitude();
+    tempLon = location.getLongitude();
+    System.out.print(tempLat + tempLon);
 
     }
 
@@ -331,7 +494,12 @@ public class MainActivity extends Activity implements LocationListener {
                     String year = (String) android.text.format.DateFormat.format("yyyy", futureDate); //2013
                     String day = (String) android.text.format.DateFormat.format("dd", futureDate); //20
 
-                    String json = "{\"request\":{\"slice\":[{\"origin\":\"" + airportCodesList.get(0) + "\",\"destination\":\"" + airportCodesList.get(1) + "\",\"date\":\"" + year + "-" + intMonth + "-" + day + "\"}],\"passengers\":{\"adultCount\":1,\"infantInLapCount\":0,\"infantInSeatCount\":0,\"childCount\":0,\"seniorCount\":0},\"solutions\":20,\"refundable\":false}}";
+                    String json = "{\"request\":{\"slice\":[{\"origin\":\"" + airportCodesList.get(0)
+                            + "\",\"destination\":\"" + airportCodesList.get(1)
+                            + "\",\"date\":\"" + year + "-" + intMonth + "-" + day
+                            + "\"}],\"passengers\":{\"adultCount\":1,\"infantInLapCount\":0,\"" +
+                            "infantInSeatCount\":0,\"childCount\":0,\"seniorCount\":0},\"solutions" +
+                            "\":20,\"refundable\":false}}";
                     JSONObject jsonOfString = new JSONObject(json);
 
                     HttpsURLConnection httpConn;
@@ -426,7 +594,9 @@ public class MainActivity extends Activity implements LocationListener {
                         endLon = endLoc.getString("lng");
                         endLat = endLoc.getString("lat");
                         float[] results = new float[1];
-                        Location.distanceBetween(Double.parseDouble(startLat),Double.parseDouble(startLon),Double.parseDouble(endLat),Double.parseDouble(endLon),results);
+                        Location.distanceBetween(Double.parseDouble(startLat),
+                                Double.parseDouble(startLon),Double.parseDouble(endLat),
+                                Double.parseDouble(endLon),results);
                         straightDistance = (int) (results[0] * 0.00062137);
                         estimatedFlightTime = "" + (int)((straightDistance / 9.3) + 45);
 
@@ -485,14 +655,19 @@ public class MainActivity extends Activity implements LocationListener {
                             airportCityList.add(currObj.getString("city"));
                             if (airportCodesList.size() == 2 && anyAirport == false) {
                                 JsonRequest getFlightPriceHotwire = new JsonRequest();
-                                getFlightPriceHotwire.execute("http://api.hotwire.com/v1/tripstarter/air?&sort=price&sortorder=asc&apikey=me7km7cggj34uffqyavrfazg&dest=" + airportCityList.get(1) + "&dist=300&origin=" + airportCityList.get(0) + "&format=json");
+                                getFlightPriceHotwire.execute("http://api.hotwire.com" +
+                                        "/v1/tripstarter/air?&sort=price&sortorder=asc&apikey=" +
+                                        "me7km7cggj34uffqyavrfazg&dest=" + airportCityList.get(1) +
+                                        "&dist=300&origin=" + airportCityList.get(0) + "&format=json");
 
                             }
                             if(anyAirport == true && airportCodesList.size()==2)
                             {
                                 anyAirport = false;
                                 JsonRequest googleFlightRequest = new JsonRequest();
-                                googleFlightRequest.execute("https://www.googleapis.com/qpxExpress/v1/trips/search?key=AIzaSyBy1E3Ad0eF6HSiezWSd0SJ98V5ZPYLxYc");
+                                googleFlightRequest.execute("https://www.googleapis.com" +
+                                        "/qpxExpress/v1/trips/search?key=" +
+                                        "AIzaSyBy1E3Ad0eF6HSiezWSd0SJ98V5ZPYLxYc");
                             }
 
                         } catch (JSONException e) {
