@@ -2,16 +2,14 @@ package edu.gvsu.cis.getterj.flyordrive;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,7 +27,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,7 +39,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -61,9 +57,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 LocationListener{
     EditText startLoc;
     EditText endLoc;
-//    EditText carMake;
-//    EditText carModel;
-//    EditText carYear;
     Button goButton;
     Spinner yearSpinner;
     Spinner makeSpinner;
@@ -78,9 +71,9 @@ LocationListener{
     ArrayList<String> carOptionsArrayList;
     ArrayList<String> carIdArrayList;
     String url;
-    String apiKey = "AIzaSyCjFdDt_AKA3uxkPJP_OSnrQrp4e9QbVyM";
+//    String apiKey = "AIzaSyCjFdDt_AKA3uxkPJP_OSnrQrp4e9QbVyM";
     String googleMapUrl = "http://maps.googleapis.com/maps/api/directions/json?origin=";
-    String airportCodeLookup = "http://airports.pidgets.com/v1/airports?near=37.77,-122.39&format=json";
+//    String airportCodeLookup = "http://airports.pidgets.com/v1/airports?near=37.77,-122.39&format=json";
     String milesToTravel;
     String carMPG;
     String regularGasPrice;
@@ -132,9 +125,6 @@ LocationListener{
         setContentView(R.layout.activity_main);
         startLoc = (EditText) findViewById(R.id.startLoc);
         endLoc = (EditText) findViewById(R.id.endLoc);
-//        carMake = (EditText) findViewById(R.id.carMake);
-//        carModel = (EditText) findViewById(R.id.carModel);
-//        carYear = (EditText) findViewById(R.id.carYear);
         goButton = (Button) findViewById(R.id.goButton);
         currentLoc = (RadioButton) findViewById(R.id.currLocRadioButton);
         yearSpinner = (Spinner) findViewById(R.id.spinner);
@@ -143,15 +133,15 @@ LocationListener{
         optionsSpinner = (Spinner) findViewById(R.id.carOptionsSpinner);
         driveHours = (EditText) findViewById(R.id.driveHours);
         dbFactory = DocumentBuilderFactory.newInstance();
-        carModelArrayList = new ArrayList<String>();
-        carYearArrayList = new ArrayList<String>();
-        carMakeArrayList = new ArrayList<String>();
-        carOptionsArrayList = new ArrayList<String>();
-        carIdArrayList = new ArrayList<String>();
-        airportCodesList = new ArrayList<String>();
-        airportCityList = new ArrayList<String>();
+        carModelArrayList = new ArrayList<>();
+        carYearArrayList = new ArrayList<>();
+        carMakeArrayList = new ArrayList<>();
+        carOptionsArrayList = new ArrayList<>();
+        carIdArrayList = new ArrayList<>();
+        airportCodesList = new ArrayList<>();
+        airportCityList = new ArrayList<>();
 
-        final String carId;
+//        final String carId;
         url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/year";
         JsonRequest getYears = new JsonRequest();
         getYears.execute("http://www.fueleconomy.gov/ws/rest/vehicle/menu/year");
@@ -169,7 +159,7 @@ LocationListener{
             @Override
             public void onClick(View v) {
                 prog.show();
-              if(currentLoc.isChecked() == true)
+              if(currentLoc.isChecked())
               {
                   url = googleMapUrl + currLatitude + "," + currLongitude + "&destination="
                           + endLoc.getText().toString();
@@ -295,7 +285,7 @@ LocationListener{
      * Saves the resolution state.
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(KEY_IN_RESOLUTION, mIsInResolution);
     }
@@ -334,7 +324,7 @@ LocationListener{
         LocationServices.FusedLocationApi.requestLocationUpdates (
                 mGoogleApiClient,   /* fill in with the name of your GoogleMap object */
                 req,
-                (com.google.android.gms.location.LocationListener) this);  /* this class is the LocationListener */
+                this);  /* this class is the LocationListener */
     }
 
     /**
@@ -390,7 +380,6 @@ LocationListener{
             startLoc.setFocusableInTouchMode(false);
             startLoc.setClickable(false);
             currentLoc.setChecked(true);
-            Criteria criteria = new Criteria();
 
             currLongitude = tempLon;
             currLatitude = tempLat;
@@ -460,7 +449,6 @@ LocationListener{
     public void onProviderDisabled(String provider) {
 
     }
-    private ProgressDialog dialog;
 
     private class JsonRequest extends AsyncTask<String, Void, BackgroundHolder> {
 
@@ -483,8 +471,8 @@ LocationListener{
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                BackgroundHolder holder = new BackgroundHolder(json,strings[0]);
-                return (holder);
+                return (new BackgroundHolder(json,strings[0]));
+                //previously called holder
             }
             if(strings[0].contains("qpxExpress"))
             {
@@ -527,28 +515,22 @@ LocationListener{
 
                         BufferedReader br = new BufferedReader(new InputStreamReader(httpConn.getInputStream(),"utf-8"));
 
-                        String line = null;
+                        String line;
 
                         while ((line = br.readLine()) != null) {
-                            sb.append(line + "\n");
+                            sb.append(line).append("\n");
                         }
 
                         br.close();
-                        BackgroundHolder googleFlightHolder = new BackgroundHolder(sb.toString(),strings[0]);
-                        return googleFlightHolder;
+                        return new BackgroundHolder(sb.toString(),strings[0]);
+                        //previously called googleFlightHolder
 
                     }else{
                         System.out.println(httpConn.getResponseMessage());
                     }
 
 
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } catch (ClientProtocolException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
+                } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -560,13 +542,9 @@ LocationListener{
                 URL u = new URL(strings[0].replaceAll(" ","%20"));
                 uconn = (HttpURLConnection) u.openConnection();
                 Document doc = docBuilder.parse(uconn.getInputStream());
-                BackgroundHolder xmlHolder = new BackgroundHolder(doc,strings[0]);
-                return (xmlHolder);
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            } catch (SAXException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+                return (new BackgroundHolder(doc,strings[0]));
+                //previously called xmlHolder
+            } catch (ParserConfigurationException | SAXException | IOException e) {
                 e.printStackTrace();
             }
             return null;
@@ -634,7 +612,7 @@ LocationListener{
                             airportCodesList.clear();
                             airportCityList.clear();
                         }
-                        if(anyAirport == true)
+                        if(anyAirport)
                         {
                             carriers = 2;
                         }
@@ -659,9 +637,11 @@ LocationListener{
                                 k++;
                             }
 
-                            airportCodesList.add(currObj.getString("code"));
-                            airportCityList.add(currObj.getString("city"));
-                            if (airportCodesList.size() == 2 && anyAirport == false) {
+                            if (currObj != null) {
+                                airportCodesList.add(currObj.getString("code"));
+                                airportCityList.add(currObj.getString("city"));
+                            }
+                            if (airportCodesList.size() == 2 && !anyAirport) {
                                 JsonRequest getFlightPriceHotwire = new JsonRequest();
                                 getFlightPriceHotwire.execute("http://api.hotwire.com" +
                                         "/v1/tripstarter/air?&sort=price&sortorder=asc&apikey=" +
@@ -669,7 +649,7 @@ LocationListener{
                                         "&dist=300&origin=" + airportCityList.get(0) + "&format=json");
 
                             }
-                            if(anyAirport == true && airportCodesList.size()==2)
+                            if(anyAirport && airportCodesList.size()==2)
                             {
                                 anyAirport = false;
                                 JsonRequest googleFlightRequest = new JsonRequest();
@@ -795,21 +775,21 @@ LocationListener{
 
                                         carMakeArrayList.add(temp.getTextContent());
                                         ArrayAdapter<String> adapter;
-                                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                        adapter = new ArrayAdapter<>(MainActivity.this,
                                                 android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
                                         makeSpinner.setAdapter(adapter);
                                     }
                                     if (s.getUrl().contains("/year")) {
                                         carYearArrayList.add(temp.getTextContent());
                                         ArrayAdapter<String> adapter;
-                                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                        adapter = new ArrayAdapter<>(MainActivity.this,
                                                 android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
                                         yearSpinner.setAdapter(adapter);
                                     }
                                     if (s.getUrl().contains("model?")) {
                                         carModelArrayList.add(temp.getTextContent());
                                         ArrayAdapter<String> adapter;
-                                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                        adapter = new ArrayAdapter<>(MainActivity.this,
                                                 android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
                                         modelSpinner.setAdapter(adapter);
                                     }
@@ -819,7 +799,7 @@ LocationListener{
                                         carIdArrayList.add(id.getTextContent());
 
                                         ArrayAdapter<String> adapter;
-                                        adapter = new ArrayAdapter<String>(MainActivity.this,
+                                        adapter = new ArrayAdapter<>(MainActivity.this,
                                                 android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
                                         optionsSpinner.setAdapter(adapter);
                                     }
@@ -843,6 +823,10 @@ LocationListener{
         setIntent.addCategory(Intent.CATEGORY_HOME);
         setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(setIntent);
+
+        if (prog.isShowing()) {
+            prog.hide();
+        }
     }
 
 

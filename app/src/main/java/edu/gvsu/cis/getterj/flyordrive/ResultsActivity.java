@@ -1,11 +1,9 @@
 package edu.gvsu.cis.getterj.flyordrive;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -16,8 +14,6 @@ import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,7 +22,6 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.text.NumberFormat;
@@ -34,13 +29,6 @@ import java.text.NumberFormat;
 
 public class ResultsActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
-    private TextView flyCost;
-    private TextView flyTime;
-    private TextView flyMiles;
-    private TextView driveCost;
-    private TextView driveTime;
-    private TextView driveMiles;
-    private TextView resultsLabel;
     Double startLat;
     Double startLon;
     Double endLat;
@@ -74,13 +62,13 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_results);
 
-        flyCost = (TextView) findViewById(R.id.fCost);
-        flyTime = (TextView) findViewById(R.id.fTime);
-        flyMiles = (TextView) findViewById(R.id.fMiles);
-        driveCost = (TextView) findViewById(R.id.dCost);
-        driveTime = (TextView) findViewById(R.id.dTime);
-        driveMiles = (TextView) findViewById(R.id.dMiles);
-        resultsLabel = (TextView) findViewById(R.id.resultsLabel);
+        TextView flyCost = (TextView) findViewById(R.id.fCost);
+        TextView flyTime = (TextView) findViewById(R.id.fTime);
+        TextView flyMiles = (TextView) findViewById(R.id.fMiles);
+        TextView driveCost = (TextView) findViewById(R.id.dCost);
+        TextView driveTime = (TextView) findViewById(R.id.dTime);
+        TextView driveMiles = (TextView) findViewById(R.id.dMiles);
+        TextView resultsLabel = (TextView) findViewById(R.id.resultsLabel);
 
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
 
@@ -100,7 +88,7 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
         driveMiles.setText(milesToDriveString);
         driveTime.setText(fromMain.getStringExtra("driveDuration"));
         flyCost.setText(currencyFormatter.format(flightPrice));
-        flyMiles.setText(fromMain.getIntExtra("flightMileage",0) + " miles");
+        flyMiles.setText(fromMain.getIntExtra("flightMileage", 0) + " miles");
         flyTime.setText(flightHours + " hours " + flightMins + " mins");
         if(drivePrice < flightPrice)
         {
@@ -306,7 +294,7 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
         mMap.addPolyline(new PolylineOptions()
                 .add(new LatLng(startLat, startLon), new LatLng(endLat, endLon))
                 .width(10)
-                .color(Color.RED));
+                .color(Color.BLUE));
 
         LatLng geoPos = new LatLng(startLat, startLon);
 
