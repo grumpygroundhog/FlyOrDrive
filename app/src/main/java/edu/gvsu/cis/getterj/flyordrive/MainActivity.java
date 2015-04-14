@@ -1,6 +1,7 @@
 package edu.gvsu.cis.getterj.flyordrive;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -140,6 +141,7 @@ LocationListener{
         carIdArrayList = new ArrayList<>();
         airportCodesList = new ArrayList<>();
         airportCityList = new ArrayList<>();
+
 
 //        final String carId;
         url = "http://www.fueleconomy.gov/ws/rest/vehicle/menu/year";
@@ -558,6 +560,21 @@ LocationListener{
                 if(s.getUrl().contains("maps.google"))
                 {
                     String json = s.getJsonHolder();
+                    if(json.contains("ZERO_RESULTS"))
+                    {
+                        prog.dismiss();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setMessage("Please make sure your cities are valid.")
+                                .setCancelable(false)
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+                    else{
                     try {
                          JSONObject topJsonObject = new JSONObject(json);
                          JSONArray routes = topJsonObject.getJSONArray("routes");
@@ -605,6 +622,7 @@ LocationListener{
                                  e.printStackTrace();
                             }
 
+                }
                 }
                 else {
                     if (s.getUrl().contains("airport")) {
