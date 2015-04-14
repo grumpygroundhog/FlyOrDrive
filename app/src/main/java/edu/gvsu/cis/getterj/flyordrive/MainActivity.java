@@ -99,6 +99,7 @@ LocationListener{
     int flightMileage = 0;
     int straightDistance;
     String estimatedFlightTime;
+    Double estimatedFlightCost;
 
     private static final String TAG = "GglPlayServicesActivity";
 
@@ -528,7 +529,7 @@ LocationListener{
                         //previously called googleFlightHolder
 
                     }else{
-                        System.out.println(httpConn.getResponseMessage());
+                        return new BackgroundHolder("Exceeded Google","Exceeded Google");
                     }
 
 
@@ -600,6 +601,8 @@ LocationListener{
                                 Double.parseDouble(endLon),results);
                         straightDistance = (int) (results[0] * 0.00062137);
                         estimatedFlightTime = "" + (int)((straightDistance / 9.3) + 45);
+                        estimatedFlightCost = 50 + (straightDistance * .11);
+
 
 
                         double stopCost = ((Math.ceil(driveTimeInHours/
@@ -770,67 +773,83 @@ LocationListener{
                                 e.printStackTrace();
                             }
                         }
-
-                         else {
-                            Document xmlDoc = s.getDocHolder();
-                            String root = s.getDocHolder().getDocumentElement().getNodeName();
-
-                            if (root.equals("vehicle")) {
-                                NodeList xmlElements = xmlDoc.getElementsByTagName("vehicle");
-                                NodeList level2 = xmlElements.item(0).getChildNodes();
-                                Node mpg = level2.item(19);
-                                carMPG = mpg.getTextContent();
-                            }
-                            if (root.equals("fuelPrices")) {
-                                NodeList xmlElements = xmlDoc.getElementsByTagName("fuelPrices");
-                                NodeList level2 = xmlElements.item(0).getChildNodes();
-                                Node regGasPrice = level2.item(7);
-                                regularGasPrice = regGasPrice.getTextContent();
-
+                        else {
+                            if (s.getUrl().contains("Exceeded")) {
+                                Intent launchme = new Intent(MainActivity.this, ResultsActivity.class);
+                                launchme.putExtra("driveCost", driveCost);
+                                launchme.putExtra("driveMiles", milesToTravel);
+                                launchme.putExtra("driveDuration", driveDuration);
+                                launchme.putExtra("startLat", startLat);
+                                launchme.putExtra("startLon", startLon);
+                                launchme.putExtra("endLon", endLon);
+                                launchme.putExtra("endLat", endLat);
+                                launchme.putExtra("flightPrice", estimatedFlightCost.toString());
+                                launchme.putExtra("flyingTime", estimatedFlightTime);
+                                launchme.putExtra("flightMileage", straightDistance);
+                                if (prog.isShowing()) {
+                                    prog.hide();
+                                }
+                                startActivity(launchme);
                             } else {
-                                NodeList xmlElements = xmlDoc.getElementsByTagName("menuItem");
-                                for (int k = 0; k < xmlElements.getLength(); k++) {
-                                    NodeList level2 = xmlElements.item(k).getChildNodes();
-                                    Node temp = level2.item(0);
-                                    Node id = level2.item(1);
-                                    if (s.getUrl().contains("make?")) {
+                                Document xmlDoc = s.getDocHolder();
+                                String root = s.getDocHolder().getDocumentElement().getNodeName();
 
-                                        carMakeArrayList.add(temp.getTextContent());
-                                        ArrayAdapter<String> adapter;
-                                        adapter = new ArrayAdapter<>(MainActivity.this,
-                                                android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
-                                        makeSpinner.setAdapter(adapter);
+                                if (root.equals("vehicle")) {
+                                    NodeList xmlElements = xmlDoc.getElementsByTagName("vehicle");
+                                    NodeList level2 = xmlElements.item(0).getChildNodes();
+                                    Node mpg = level2.item(19);
+                                    carMPG = mpg.getTextContent();
+                                }
+                                if (root.equals("fuelPrices")) {
+                                    NodeList xmlElements = xmlDoc.getElementsByTagName("fuelPrices");
+                                    NodeList level2 = xmlElements.item(0).getChildNodes();
+                                    Node regGasPrice = level2.item(7);
+                                    regularGasPrice = regGasPrice.getTextContent();
+
+                                } else {
+                                    NodeList xmlElements = xmlDoc.getElementsByTagName("menuItem");
+                                    for (int k = 0; k < xmlElements.getLength(); k++) {
+                                        NodeList level2 = xmlElements.item(k).getChildNodes();
+                                        Node temp = level2.item(0);
+                                        Node id = level2.item(1);
+                                        if (s.getUrl().contains("make?")) {
+
+                                            carMakeArrayList.add(temp.getTextContent());
+                                            ArrayAdapter<String> adapter;
+                                            adapter = new ArrayAdapter<>(MainActivity.this,
+                                                    android.R.layout.simple_spinner_dropdown_item, carMakeArrayList);
+                                            makeSpinner.setAdapter(adapter);
+                                        }
+                                        if (s.getUrl().contains("/year")) {
+                                            carYearArrayList.add(temp.getTextContent());
+                                            ArrayAdapter<String> adapter;
+                                            adapter = new ArrayAdapter<>(MainActivity.this,
+                                                    android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
+                                            yearSpinner.setAdapter(adapter);
+                                        }
+                                        if (s.getUrl().contains("model?")) {
+                                            carModelArrayList.add(temp.getTextContent());
+                                            ArrayAdapter<String> adapter;
+                                            adapter = new ArrayAdapter<>(MainActivity.this,
+                                                    android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
+                                            modelSpinner.setAdapter(adapter);
+                                        }
+                                        if (s.getUrl().contains("options?")) {
+                                            carOptionsArrayList.add(temp.getTextContent());
+
+                                            carIdArrayList.add(id.getTextContent());
+
+                                            ArrayAdapter<String> adapter;
+                                            adapter = new ArrayAdapter<>(MainActivity.this,
+                                                    android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
+                                            optionsSpinner.setAdapter(adapter);
+                                        }
+
+
                                     }
-                                    if (s.getUrl().contains("/year")) {
-                                        carYearArrayList.add(temp.getTextContent());
-                                        ArrayAdapter<String> adapter;
-                                        adapter = new ArrayAdapter<>(MainActivity.this,
-                                                android.R.layout.simple_spinner_dropdown_item, carYearArrayList);
-                                        yearSpinner.setAdapter(adapter);
-                                    }
-                                    if (s.getUrl().contains("model?")) {
-                                        carModelArrayList.add(temp.getTextContent());
-                                        ArrayAdapter<String> adapter;
-                                        adapter = new ArrayAdapter<>(MainActivity.this,
-                                                android.R.layout.simple_spinner_dropdown_item, carModelArrayList);
-                                        modelSpinner.setAdapter(adapter);
-                                    }
-                                    if (s.getUrl().contains("options?")) {
-                                        carOptionsArrayList.add(temp.getTextContent());
-
-                                        carIdArrayList.add(id.getTextContent());
-
-                                        ArrayAdapter<String> adapter;
-                                        adapter = new ArrayAdapter<>(MainActivity.this,
-                                                android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
-                                        optionsSpinner.setAdapter(adapter);
-                                    }
-
-
                                 }
                             }
-                        }
-                        }
+                        }}
                     }
                 }
 
