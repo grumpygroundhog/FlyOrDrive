@@ -49,7 +49,7 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
 
 
 
-    String encodedPolyine;
+
 
     private Marker myMarker;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -95,7 +95,7 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
 
         setEncodedPolyline(fromMain.getStringExtra("pointsEncoded"));
 
-
+String polyline = fromMain.getStringExtra("pointsEncoded");
         int flightTimeInMins = Integer.parseInt(fromMain.getStringExtra("flyingTime"));
         int flightHours = flightTimeInMins/60;
         int flightMins = flightTimeInMins%60;
@@ -311,20 +311,13 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
                 .color(Color.BLUE));
 
         List<LatLng> points = new ArrayList<LatLng>();
-        points = decodePoly(this.getEncodedPolyline());
+        points = decodePoly(this.encodedPolyline);
         mMap.addPolyline(new PolylineOptions()
         .addAll(points)
-                .width(80)
+                .width(10)
                 .color(Color.RED)
         );
-        /*for(LatLng x : points)
-        {
-            mMap.addPolyline(new PolylineOptions()
-                            .add(x)
-                            .width(10)
-                            .color(Color.RED)
-            );
-        }*/
+
 
 
         LatLng geoPos = new LatLng(startLat, startLon);

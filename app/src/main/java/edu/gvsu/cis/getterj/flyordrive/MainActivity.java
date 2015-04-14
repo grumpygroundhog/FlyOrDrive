@@ -100,7 +100,7 @@ LocationListener{
     int straightDistance;
     String estimatedFlightTime;
     Double estimatedFlightCost;
-
+    String polylineEncoded;
     private static final String TAG = "GglPlayServicesActivity";
 
     private static final String KEY_IN_RESOLUTION = "is_in_resolution";
@@ -583,7 +583,7 @@ LocationListener{
                          JSONArray legs = holder1.getJSONArray("legs");
                          JSONObject holder2 = legs.getJSONObject(0);
                          JSONObject polyline = holder1.getJSONObject("overview_polyline");
-                        String polylineEncoded = polyline.get("points").toString();
+                        polylineEncoded = polyline.get("points").toString();
                          JSONObject distance = holder2.getJSONObject("distance");
                          milesToTravel = distance.getString("text").replaceAll("[^0-9]","");
                          JSONObject duration = holder2.getJSONObject("duration");
@@ -706,7 +706,7 @@ LocationListener{
                                     launchme.putExtra("flightPrice", flightPrice);
                                     launchme.putExtra("flightMileage",flightMileage);
                                     launchme.putExtra("flyingTime",flyingTime);
-
+                                    launchme.putExtra("pointsEncoded",polylineEncoded);
                                     if (prog.isShowing()) {
                                         prog.hide();
                                     }
@@ -764,6 +764,7 @@ LocationListener{
                                 launchme.putExtra("flightPrice",flightPrice);
                                 launchme.putExtra("flyingTime", flyingTime);
                                 launchme.putExtra("flightMileage",flightMileage);
+                                launchme.putExtra("pointsEncoded",polylineEncoded);
                                 if (prog.isShowing()) {
                                     prog.hide();
                                 }
@@ -786,6 +787,7 @@ LocationListener{
                                 launchme.putExtra("flightPrice", estimatedFlightCost.toString());
                                 launchme.putExtra("flyingTime", estimatedFlightTime);
                                 launchme.putExtra("flightMileage", straightDistance);
+                                launchme.putExtra("pointsEncoded",polylineEncoded);
                                 if (prog.isShowing()) {
                                     prog.hide();
                                 }
