@@ -22,8 +22,9 @@
         android:text="Fly"
         android:id="@+id/flyLabel"
         android:textSize="30dp"
-        android:layout_below="@+id/resultsLabel"
-        android:layout_toStartOf="@+id/resultsLabel" />
+        android:layout_marginRight="20dp"
+        android:layout_alignTop="@+id/driveLabel"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -31,8 +32,8 @@
         android:text="Drive"
         android:id="@+id/driveLabel"
         android:textSize="30dp"
-        android:layout_above="@+id/dCost"
-        android:layout_toEndOf="@+id/resultsLabel" />
+        android:layout_below="@+id/resultsLabel"
+        android:layout_alignEnd="@+id/dTime" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -41,10 +42,7 @@
         android:id="@+id/fCost"
         android:textSize="20dp"
         android:layout_below="@+id/flyLabel"
-        android:layout_toStartOf="@+id/resultsLabel"
-        android:layout_alignStart="@+id/flyLabel"
-        android:layout_marginBottom="10dp"
-        android:layout_alignEnd="@+id/fMiles" />
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -62,8 +60,8 @@
         android:text="Miles"
         android:id="@+id/fMiles"
         android:textSize="20dp"
-        android:layout_below="@+id/fTime"
-        android:layout_alignStart="@+id/flyLabel" />
+        android:layout_below="@+id/dTime"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -71,8 +69,8 @@
         android:text="Cost"
         android:id="@+id/dCost"
         android:textSize="20dp"
-        android:layout_alignTop="@+id/fCost"
-        android:layout_alignStart="@+id/driveLabel" />
+        android:layout_below="@+id/driveLabel"
+        android:layout_alignEnd="@+id/driveLabel" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -80,9 +78,8 @@
         android:text="Time"
         android:id="@+id/dTime"
         android:textSize="20dp"
-        android:layout_above="@+id/fMiles"
-        android:layout_alignStart="@+id/dCost"
-        android:layout_marginBottom="10dp" />
+        android:layout_below="@+id/dCost"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -90,8 +87,8 @@
         android:text="Miles"
         android:id="@+id/dMiles"
         android:textSize="20dp"
-        android:layout_alignStart="@+id/dTime"
-        android:layout_below="@+id/dTime" />
+        android:layout_below="@+id/dTime"
+        android:layout_alignEnd="@+id/dTime" />
 
     <fragment
         android:layout_width="wrap_content"

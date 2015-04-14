@@ -14,10 +14,11 @@
         android:id="@+id/startLoc"
         android:hint="@string/start_location"
         android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/endLoc" />
+        android:layout_alignStart="@+id/endLoc"
+        android:layout_toStartOf="@+id/currLocRadioButton" />
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:inputType="textPostalAddress"
         android:ems="10"
@@ -27,17 +28,16 @@
         android:layout_centerHorizontal="true" />
 
     <Button
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/go_button"
         android:id="@+id/goButton"
         android:background="#ff0ee324"
         android:layout_below="@+id/driveHours"
-        android:layout_alignEnd="@+id/currLocRadioButton"
-        android:layout_alignStart="@+id/driveHours" />
+        android:layout_alignEnd="@+id/driveHours" />
 
     <Spinner
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/spinner"
         android:layoutMode="opticalBounds"
@@ -85,11 +85,11 @@
         android:layout_height="wrap_content"
         android:id="@+id/currLocRadioButton"
         android:onClick="onRadioButtonClicked"
-        android:layout_alignBottom="@+id/startLoc"
-        android:layout_toEndOf="@+id/startLoc" />
+        android:layout_alignParentTop="true"
+        android:layout_alignEnd="@+id/endLoc" />
 
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:inputType="number"
         android:ems="10"

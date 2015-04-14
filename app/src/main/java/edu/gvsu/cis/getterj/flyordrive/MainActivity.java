@@ -564,6 +564,8 @@ LocationListener{
                          JSONObject holder1 = routes.getJSONObject(0);
                          JSONArray legs = holder1.getJSONArray("legs");
                          JSONObject holder2 = legs.getJSONObject(0);
+                         JSONObject polyline = holder1.getJSONObject("overview_polyline");
+                        String polylineEncoded = polyline.get("points").toString();
                          JSONObject distance = holder2.getJSONObject("distance");
                          milesToTravel = distance.getString("text").replaceAll("[^0-9]","");
                          JSONObject duration = holder2.getJSONObject("duration");
@@ -741,7 +743,9 @@ LocationListener{
                                 launchme.putExtra("flightPrice",flightPrice);
                                 launchme.putExtra("flyingTime", flyingTime);
                                 launchme.putExtra("flightMileage",flightMileage);
-
+                                if (prog.isShowing()) {
+                                    prog.hide();
+                                }
                                 startActivity(launchme);
 
                             } catch (JSONException e) {
