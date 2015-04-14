@@ -200,15 +200,6 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.i(TAG, "GoogleApiClient connected");
-//        LocationRequest req = new LocationRequest();
-//        req.setInterval (3000); /* every 3 seconds */
-//        req.setFastestInterval (1000); /* how fast our app can handle the notifications */
-//        req.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-//
-//        LocationServices.FusedLocationApi.requestLocationUpdates (
-//                mGoogleApiClient,   /* fill in with the name of your GoogleMap object */
-//                req,
-//                this);  /* this class is the LocationListener */
     }
 
     /**
@@ -290,6 +281,7 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
      */
     private void setUpMap() {
         mMap.addMarker(new MarkerOptions().position(new LatLng(startLat, startLon)).title("Marker"));
+        mMap.addMarker(new MarkerOptions().position(new LatLng(endLat, endLon)).title("Marker"));
 
         mMap.addPolyline(new PolylineOptions()
                 .add(new LatLng(startLat, startLon), new LatLng(endLat, endLon))
