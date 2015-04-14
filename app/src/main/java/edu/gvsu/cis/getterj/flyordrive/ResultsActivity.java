@@ -23,8 +23,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.PolyUtil;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ResultsActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -33,6 +36,20 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
     Double startLon;
     Double endLat;
     Double endLon;
+
+    public String getEncodedPolyline() {
+        return encodedPolyline;
+    }
+
+    public void setEncodedPolyline(String encodedPolyline) {
+        this.encodedPolyline = encodedPolyline;
+    }
+
+    String encodedPolyline;
+
+
+
+    String encodedPolyine;
 
     private Marker myMarker;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
@@ -57,6 +74,8 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
      */
     private boolean mIsInResolution;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +92,9 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
 
         Intent fromMain = getIntent();
+
+        setEncodedPolyline(fromMain.getStringExtra("pointsEncoded"));
+
 
         int flightTimeInMins = Integer.parseInt(fromMain.getStringExtra("flyingTime"));
         int flightHours = flightTimeInMins/60;
@@ -279,7 +301,7 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
      * <p/>
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
-    private void setUpMap() {
+    public void setUpMap() {
         mMap.addMarker(new MarkerOptions().position(new LatLng(startLat, startLon)).title("Marker"));
         mMap.addMarker(new MarkerOptions().position(new LatLng(endLat, endLon)).title("Marker"));
 
@@ -287,6 +309,23 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
                 .add(new LatLng(startLat, startLon), new LatLng(endLat, endLon))
                 .width(10)
                 .color(Color.BLUE));
+
+        List<LatLng> points = new ArrayList<LatLng>();
+        points = decodePoly(this.getEncodedPolyline());
+        mMap.addPolyline(new PolylineOptions()
+        .addAll(points)
+                .width(80)
+                .color(Color.RED)
+        );
+        /*for(LatLng x : points)
+        {
+            mMap.addPolyline(new PolylineOptions()
+                            .add(x)
+                            .width(10)
+                            .color(Color.RED)
+            );
+        }*/
+
 
         LatLng geoPos = new LatLng(startLat, startLon);
 
@@ -300,5 +339,10 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
             myMarker = mMap.addMarker(new MarkerOptions().position(geoPos));
         else
             myMarker.setPosition (geoPos);
+    }
+    private List<LatLng> decodePoly(String encoded) {
+
+        List<LatLng> points = PolyUtil.decode(encoded);
+        return points;
     }
 }
