@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.Window;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -79,6 +80,8 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_results);
 
         TextView flyCost = (TextView) findViewById(R.id.fCost);
@@ -115,10 +118,12 @@ String polyline = fromMain.getStringExtra("pointsEncoded");
         if(drivePrice < flightPrice)
         {
             resultsLabel.setText("Drive!");
+
         }
         else
         {
             resultsLabel.setText("Fly!");
+
         }
         setUpMapIfNeeded();
         if (savedInstanceState != null) {

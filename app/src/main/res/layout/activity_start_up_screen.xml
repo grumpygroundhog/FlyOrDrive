@@ -33,14 +33,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Thank you for dowloading"
+        android:text="Traveling Made Easy"
         android:id="@+id/textView2"
         android:gravity="center"
         android:singleLine="true"
         android:textColor="#ecf0f1"
         android:layout_marginTop="31dp"
         android:layout_below="@+id/imageView"
-        android:layout_alignStart="@+id/imageView" />
+        android:layout_alignStart="@+id/imageView"
+        android:layout_alignParentStart="false"
+        android:layout_alignEnd="@+id/imageView" />
 
 
 </RelativeLayout>

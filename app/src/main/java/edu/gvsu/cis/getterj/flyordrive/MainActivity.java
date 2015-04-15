@@ -15,10 +15,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 
@@ -58,7 +60,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 LocationListener{
     EditText startLoc;
     EditText endLoc;
-    Button goButton;
+    ImageButton goButton;
     Spinner yearSpinner;
     Spinner makeSpinner;
     Spinner modelSpinner;
@@ -124,10 +126,12 @@ LocationListener{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         startLoc = (EditText) findViewById(R.id.startLoc);
         endLoc = (EditText) findViewById(R.id.endLoc);
-        goButton = (Button) findViewById(R.id.goButton);
+        goButton = (ImageButton) findViewById(R.id.goButton);
         currentLoc = (RadioButton) findViewById(R.id.currLocRadioButton);
         yearSpinner = (Spinner) findViewById(R.id.spinner);
         makeSpinner = (Spinner) findViewById(R.id.makeSpinner);
