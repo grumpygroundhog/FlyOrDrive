@@ -75,7 +75,8 @@ LocationListener{
     ArrayList<String> carOptionsArrayList;
     ArrayList<String> carIdArrayList;
     String url;
-//    String apiKey = "AIzaSyCjFdDt_AKA3uxkPJP_OSnrQrp4e9QbVyM";
+
+//    String apiKey = "AIzaSyBbT_qzGTN2ztapLqsVmdMrAQyxGbCQ84U";
     String googleMapUrl = "http://maps.googleapis.com/maps/api/directions/json?origin=";
 //    String airportCodeLookup = "http://airports.pidgets.com/v1/airports?near=37.77,-122.39&format=json";
     String milesToTravel;
@@ -134,6 +135,7 @@ LocationListener{
         endLoc = (EditText) findViewById(R.id.endLoc);
         goButton = (ImageButton) findViewById(R.id.goButton);
         currentLoc = (RadioButton) findViewById(R.id.currLocRadioButton);
+        currentLoc.setClickable(false);
         yearSpinner = (Spinner) findViewById(R.id.spinner);
         makeSpinner = (Spinner) findViewById(R.id.makeSpinner);
         modelSpinner = (Spinner) findViewById(R.id.modelSpinner);
@@ -894,6 +896,9 @@ LocationListener{
                                             adapter = new ArrayAdapter<>(MainActivity.this,
                                                     android.R.layout.simple_spinner_dropdown_item, carOptionsArrayList);
                                             optionsSpinner.setAdapter(adapter);
+                                            if(!currentLoc.isClickable()){
+                                                currentLoc.setClickable(true);
+                                            }
                                         }
 
 

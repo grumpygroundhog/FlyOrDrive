@@ -100,7 +100,8 @@
         android:onClick="onRadioButtonClicked"
         android:buttonTint="#ffffffff"
         android:layout_above="@+id/endLoc"
-        android:layout_alignEnd="@+id/endLoc" />
+        android:layout_alignEnd="@+id/endLoc"
+        android:checked="false" />
 
     <EditText
         android:layout_width="fill_parent"
