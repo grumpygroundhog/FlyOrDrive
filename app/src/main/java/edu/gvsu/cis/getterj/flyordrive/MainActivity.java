@@ -165,21 +165,51 @@ LocationListener{
         goButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                prog.show();
-              if(currentLoc.isChecked())
-              {
-                  url = googleMapUrl + currLatitude + "," + currLongitude + "&destination="
-                          + endLoc.getText().toString();
-              }
-                else {
-                  url = googleMapUrl + startLoc.getText().toString() + "&destination="
-                          + endLoc.getText().toString();
-              }
-
-                JsonRequest getDirections = new JsonRequest();
-                getDirections.execute(url);
+               if(startLoc.getText().toString().isEmpty() == false && endLoc.getText().toString().isEmpty() == false) {
+                   if (driveHours.getText().toString().isEmpty() == false &&
+                           Double.parseDouble(driveHours.getText().toString()) <= 24 &&
+                           Double.parseDouble(driveHours.getText().toString()) > 0) {
 
 
+                       prog.show();
+                       if (currentLoc.isChecked()) {
+                           url = googleMapUrl + currLatitude + "," + currLongitude + "&destination="
+                                   + endLoc.getText().toString();
+                       } else {
+                           url = googleMapUrl + startLoc.getText().toString() + "&destination="
+                                   + endLoc.getText().toString();
+                       }
+
+                       JsonRequest getDirections = new JsonRequest();
+                       getDirections.execute(url);
+
+
+                   } else {
+                       AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                       builder.setMessage("Please make sure you enter a valid number of hours to drive per day.")
+                               .setCancelable(false)
+                               .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                   public void onClick(DialogInterface dialog, int id) {
+                                       dialog.dismiss();
+                                   }
+                               });
+                       AlertDialog alert = builder.create();
+                       alert.show();
+                   }
+               }
+                else
+               {
+                   AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                   builder.setMessage("Please make sure you enter a valid start and end location.")
+                           .setCancelable(false)
+                           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                               public void onClick(DialogInterface dialog, int id) {
+                                   dialog.dismiss();
+                               }
+                           });
+                   AlertDialog alert = builder.create();
+                   alert.show();
+               }
             }
         });
 
