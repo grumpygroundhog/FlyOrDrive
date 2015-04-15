@@ -4,6 +4,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -23,6 +25,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 
@@ -91,6 +94,10 @@ public class ResultsActivity extends FragmentActivity implements GoogleApiClient
         TextView driveTime = (TextView) findViewById(R.id.dTime);
         TextView driveMiles = (TextView) findViewById(R.id.dMiles);
         TextView resultsLabel = (TextView) findViewById(R.id.resultsLabel);
+        TextView flyLabel = (TextView) findViewById(R.id.flyLabel);
+        flyLabel.setPaintFlags(flyLabel.getPaintFlags()| Paint.UNDERLINE_TEXT_FLAG);
+        TextView driveLabel = (TextView) findViewById(R.id.driveLabel);
+        driveLabel.setPaintFlags(driveLabel.getPaintFlags()| Paint.UNDERLINE_TEXT_FLAG);
 
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
 
@@ -313,14 +320,15 @@ String polyline = fromMain.getStringExtra("pointsEncoded");
         mMap.addPolyline(new PolylineOptions()
                 .add(new LatLng(startLat, startLon), new LatLng(endLat, endLon))
                 .width(10)
-                .color(Color.BLUE));
+                .color(Color.rgb(208, 90, 90))
+        );
 
         List<LatLng> points = new ArrayList<LatLng>();
         points = decodePoly(this.encodedPolyline);
         mMap.addPolyline(new PolylineOptions()
         .addAll(points)
                 .width(10)
-                .color(Color.RED)
+                .color(Color.rgb(90, 117, 208))
         );
 
 
