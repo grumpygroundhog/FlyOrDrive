@@ -635,7 +635,7 @@ LocationListener{
                          JSONObject polyline = holder1.getJSONObject("overview_polyline");
                         polylineEncoded = polyline.get("points").toString();
                          JSONObject distance = holder2.getJSONObject("distance");
-                         milesToTravel = distance.getString("text").replaceAll("[^0-9]","");
+                         milesToTravel = Integer.toString((int)(Double.parseDouble(distance.getString("value")) * 0.000621371));
                          JSONObject duration = holder2.getJSONObject("duration");
                         driveDuration = duration.getString("text");
                         driveTimeInHours = Double.parseDouble(duration.getString("value"))/3600;
