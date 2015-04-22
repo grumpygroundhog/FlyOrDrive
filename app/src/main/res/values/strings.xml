@@ -16,6 +16,7 @@
     <string name="select_make">Select Make of Car</string>
     <string name="select_model">Select Model of Car</string>
     <string name="select_car">Select Car</string>
+    <string name="google_maps_key">AIzaSyBbT_qzGTN2ztapLqsVmdMrAQyxGbCQ84U</string>
 
     <string name="title_activity_start_up_screen">Fly or Drive</string>
     <string name="dummy_button">Dummy Button</string>

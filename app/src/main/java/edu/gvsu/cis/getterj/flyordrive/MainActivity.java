@@ -19,7 +19,6 @@ import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
@@ -739,40 +738,51 @@ LocationListener{
                         if (s.getUrl().contains("hotwire")) {
 
                             try {
-                                JSONObject main = new JSONObject(s.getJsonHolder());
-                                JSONArray results = main.getJSONArray("Result");
-                                if (results.length() != 0) {
-                                    JSONObject cheapFlight = results.getJSONObject(0);
-                                    flightPrice = cheapFlight.getString("AveragePrice");
-                                    flightMileage = straightDistance;
-                                    flyingTime = estimatedFlightTime;
-                                    Intent launchme = new Intent(MainActivity.this, ResultsActivity.class);
-                                    launchme.putExtra("driveCost", driveCost);
-                                    launchme.putExtra("driveMiles", milesToTravel);
-                                    launchme.putExtra("driveDuration", driveDuration);
-                                    launchme.putExtra("startLat", startLat);
-                                    launchme.putExtra("startLon", startLon);
-                                    launchme.putExtra("endLon", endLon);
-                                    launchme.putExtra("endLat", endLat);
-                                    launchme.putExtra("flightPrice", flightPrice);
-                                    launchme.putExtra("flightMileage",flightMileage);
-                                    launchme.putExtra("flyingTime",flyingTime);
-                                    launchme.putExtra("pointsEncoded",polylineEncoded);
-                                    if (prog.isShowing()) {
-                                        prog.hide();
-                                    }
-                                    startActivity(launchme);
+                               if(s.getJsonHolder().contains("ErrorCode") == false) {
+                                   JSONObject main = new JSONObject(s.getJsonHolder());
+                                   JSONArray results = main.getJSONArray("Result");
+                                   if (results.length() != 0) {
+                                       JSONObject cheapFlight = results.getJSONObject(0);
+                                       flightPrice = cheapFlight.getString("AveragePrice");
+                                       flightMileage = straightDistance;
+                                       flyingTime = estimatedFlightTime;
+                                       Intent launchme = new Intent(MainActivity.this, ResultsActivity.class);
+                                       launchme.putExtra("driveCost", driveCost);
+                                       launchme.putExtra("driveMiles", milesToTravel);
+                                       launchme.putExtra("driveDuration", driveDuration);
+                                       launchme.putExtra("startLat", startLat);
+                                       launchme.putExtra("startLon", startLon);
+                                       launchme.putExtra("endLon", endLon);
+                                       launchme.putExtra("endLat", endLat);
+                                       launchme.putExtra("flightPrice", flightPrice);
+                                       launchme.putExtra("flightMileage", flightMileage);
+                                       launchme.putExtra("flyingTime", flyingTime);
+                                       launchme.putExtra("pointsEncoded", polylineEncoded);
+                                       if (prog.isShowing()) {
+                                           prog.hide();
+                                       }
+                                       startActivity(launchme);
 
-                                } else {
-                                    anyAirport = true;
-                                    JsonRequest getNewAirports = new JsonRequest();
-                                    getNewAirports.execute("http://airports.pidgets.com/v1/airports?near="
-                                            + startLat + "," + startLon + "&format=json");
-                                    JsonRequest getNewAirports2 = new JsonRequest();
-                                    getNewAirports2.execute("http://airports.pidgets.com/v1/airports?near="
-                                            + endLat + "," + endLon+ "&format=json");
+                                   } else {
+                                       anyAirport = true;
+                                       JsonRequest getNewAirports = new JsonRequest();
+                                       getNewAirports.execute("http://airports.pidgets.com/v1/airports?near="
+                                               + startLat + "," + startLon + "&format=json");
+                                       JsonRequest getNewAirports2 = new JsonRequest();
+                                       getNewAirports2.execute("http://airports.pidgets.com/v1/airports?near="
+                                               + endLat + "," + endLon + "&format=json");
 
-                                }
+                                   }
+                               }
+                                else{
+                                   anyAirport = true;
+                                   JsonRequest getNewAirports = new JsonRequest();
+                                   getNewAirports.execute("http://airports.pidgets.com/v1/airports?near="
+                                           + startLat + "," + startLon + "&format=json");
+                                   JsonRequest getNewAirports2 = new JsonRequest();
+                                   getNewAirports2.execute("http://airports.pidgets.com/v1/airports?near="
+                                           + endLat + "," + endLon + "&format=json");
+                               }
 
                             } catch (JSONException e) {
                                 e.printStackTrace();
